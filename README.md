@@ -7,6 +7,7 @@ Current limitations:
 - To apply new settings, you may need to re-enable the script
 
 This is my first KWin script, so bugs reports and contributions are welcome!
+
 Link to the store: https://www.pling.com/p/1875687/
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
