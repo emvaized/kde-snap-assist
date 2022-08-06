@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+    <kcfgfile name=""/>
+    <group name="">
+		<entry name="showOtherScreensWindows" type="bool">
+		  <label>Show windows from other screens</label>
+		  <default>false</default>
+		</entry>
+		<entry name="showOtherDesktopsWindows" type="bool">
+		  <label>Show windows from other desktops</label>
+		  <default>false</default>
+		</entry>
+		<entry name="showMinimizedWindows" type="bool">
+		  <label>Show minimized windows</label>
+		  <default>true</default>
+		</entry>
+		<entry name="sortByLastActive" type="bool">
+		  <label>Sort windows by last active</label>
+		  <default>true</default>
+		</entry>
+		<entry name="descendingOrder" type="bool">
+			<label>Sort windows in descending order (newest > oldest)</label>
+		  <default>true</default>
+		</entry>
+		<entry name="cardColor" type="string">
+			<label>Card color</label>
+		  <default>#75475057</default>
+		</entry>
+		<entry name="hoveredCardColor" type="string">
+			<label>Card color (hover)</label>
+		  <default>#75d9dde1</default>
+		</entry>
+		<entry name="backdropColor" type="string">
+			<label>Backdrop color</label>
+		  <default>#50000000</default>
+		</entry>
+		<entry name="textColor" type="string">
+			<label>Text color for cards</label>
+		  <default>#ffffff</default>
+		</entry>
+		<entry name="borderRadius" type="int">
+			<label>Border radius</label>
+		  <default>5</default>
+		</entry>
+    </group>
+</kcfg>
