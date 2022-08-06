@@ -1,4 +1,4 @@
-# kde-snap-assist
+# KDE Snap Assist
 This KWin script for KDE Plasma suggests other window thumbnails on snap. It tries to replicate famous Windows 10/11 feature called "snap assist".
 Assist can be shown by dragging a window to the screen edge, as well as via default keyboard shortcuts (Super + arrows).
 
