@@ -138,11 +138,11 @@ Window {
                                 Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     bottomPadding: 8
-                                    width: cardWidth
+                                    width: cardWidth - 10
 
                                     Rectangle {
                                         height: 8
-                                        width: 20
+                                        width: 15
                                         color: "transparent"
                                     }
 
