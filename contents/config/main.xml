@@ -45,5 +45,9 @@
 			<label>Border radius</label>
 		  <default>5</default>
 		</entry>
+		<entry name="transitionDuration" type="int">
+			<label>Transition duration on assist reveal</label>
+		  <default>150</default>
+		</entry>
     </group>
 </kcfg>
