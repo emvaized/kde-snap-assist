@@ -1,8 +1,6 @@
 /// Ideas
-/// - sort windows by last access time
-/// - restore previous window size on un-snap
-/// - show placeholder when no windows on current screen
 /// - handle quater tiling
+/// - restore previous window size on un-snap
 /// - handle keyboard shortcut snapping + control from keyboard
 /// - if one of the windows is unsnapped or closed, unsnap the second one (option in settings)
 /// - support for Krunner text field to launch new apps
