@@ -4,10 +4,11 @@ Assist can be shown by dragging a window to the screen edge, as well as via defa
 
 You can select the window with mouse, as well as with arrow keys + Enter. To dismiss the assist, you can hit Escape key, press the close button or click anywhere on the empty area.
 
-Current limitations:
+Few notes:
 - Script does not support quater tiling, only side-to-side tiling 
 - To apply new settings, you may need to re-enable the script
 - I only tested the scripts on monitors with 1080p and 720p resolution with 100% scaling. It may misbehave on other resolutions or scaling — please report your issues
+- Assist will not show if you have no other windows matching the conditions set in the script configs 
 
 This is my first KWin script, so bugs reports and contributions are welcome!
 
