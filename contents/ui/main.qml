@@ -29,6 +29,13 @@ Window {
     property int focusedIndex: 0 /// selection by keyboard
     property var activationTime: ({}) /// store timestamps of last window's activation
 
+    /// for quater tiling
+    property var currentScreenQuaters: ({}) /// store quaters of the current screen
+    property var filteredClients: ([]) /// clients to filter (which are already snapped)
+    property int currentScreenWidth: 1
+    property int currentScreenHeight: 1
+    property int assistPadding: 0  /// padding to add around assist when quater snap
+
     property int columnsCount: 2
     property int gridSpacing: 25
     property color cardColor
@@ -94,7 +101,7 @@ Window {
         /// click on empty space to close
         MouseArea {
             anchors.fill: parent
-            onClicked: {  if (activated) hideAssistant(true); }
+            onClicked: {  if (activated) hideAssist(true); }
         }
 
         ScrollView {
@@ -210,7 +217,7 @@ Window {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Close snap assist")
 
-        onClicked: hideAssistant(true);
+        onClicked: hideAssist(true);
     }
 
 
@@ -247,7 +254,7 @@ Window {
 
                switch (event.key) {
                 case Qt.Key_Escape:
-                    hideAssistant(true);
+                    hideAssist(true);
                     break;
                 case Qt.Key_Left:
                     moveFocusLeft();
@@ -307,58 +314,73 @@ Window {
     }
 
     function onWindowResize(window) {
-        if (activated) hideAssistant();
+        if (activated) hideAssist();
 
         const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
-        const screenWidth = maxArea.width, screenHeight = maxArea.height;
+        currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
         const dx = window.x, dy = window.y;
         const width = window.width, height = window.height;
-        const halfScreenWidth = screenWidth / 2, halfScreenHeight = screenHeight / 2;
-
-        function delayedShowAssistant(dx, dy, width, height){
-            clients = Object.values(workspace.clients).filter(c => shouldShowWindow(c));
-            if (clients.length == 0) return;
-
-            if (sortByLastActive) sortClientsByLastActive();
-            if (descendingOrder) clients = clients.reverse();
-
-            cardWidth = screenWidth / 5;
-            cardHeight = cardWidth / 1.68;
-
-            lastActiveClient = workspace.activeClient;
-            mainWindow.requestActivate();
-            keyboardHandler.forceActiveFocus();
-
-            timer.setTimeout(function(){
-                const availableWidth = screenWidth - window.width;
-                showAssistant(dx, dy, height ?? screenHeight, width ?? availableWidth);
-            }, 1);
-        }
+        const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
 
         /// Detect if window was snapped
-        if ( width === halfScreenWidth && height == screenHeight && dy === maxArea.y) {
+        /// left/right halves
+        if (width === halfScreenWidth && height == currentScreenHeight && dy === maxArea.y) {
             if (dx === maxArea.x) {
                 /// show on right half
-                delayedShowAssistant(maxArea.x + window.width, window.y);
+                delayedShowAssist(maxArea.x + window.width, window.y, undefined, undefined, window);
             } else if (dx === maxArea.x + halfScreenWidth) {
                 /// show on left half
-                delayedShowAssistant(maxArea.x, maxArea.y);
+                delayedShowAssist(maxArea.x, maxArea.y, undefined, undefined, window);
             }
             columnsCount = 2;
-        } else if (width == screenWidth && height == screenHeight / 2 && dx === maxArea.x) {
+            assistPadding = 0;
+
+        /// top/bottom halves
+        } else if (width == currentScreenWidth && height == currentScreenHeight / 2 && dx === maxArea.x) {
             if(dy === maxArea.y) {
                 /// show in bottom half
-                delayedShowAssistant(maxArea.x, maxArea.y + halfScreenHeight, screenWidth, halfScreenHeight);
+                delayedShowAssist(maxArea.x, maxArea.y + halfScreenHeight, halfScreenHeight, currentScreenWidth);
             } else if (dy === maxArea.y + halfScreenHeight) {
                 /// show in top half
-                delayedShowAssistant(maxArea.x, maxArea.y, screenWidth,  halfScreenHeight);
+                delayedShowAssist(maxArea.x, maxArea.y, halfScreenHeight, currentScreenWidth);
             }
             columnsCount = 3;
+            assistPadding = 0;
+        }
+
+        /// quater tiling
+        else if (width === halfScreenWidth && height == halfScreenHeight) {
+            assistPadding = 9;
+
+            /// define current screen quaters
+             currentScreenQuaters = {
+                0: { dx: maxArea.x, dy:  maxArea.y, height: halfScreenHeight, width: halfScreenWidth, },
+                1: { dx: maxArea.x + halfScreenWidth, dy:  maxArea.y, height: halfScreenHeight, width: halfScreenWidth, },
+                2: { dx: maxArea.x, dy:  maxArea.y + halfScreenHeight, height: halfScreenHeight, width: halfScreenWidth, },
+                3: { dx: maxArea.x + halfScreenWidth, dy:  maxArea.y + halfScreenHeight, height: halfScreenHeight, width: halfScreenWidth, },
+            };
+
+            /// detect which quater snapped window takes
+            let currentQuater = -1;
+            let l = Object.keys(currentScreenQuaters).length;
+
+            for (let i = 0; i < l; i++) {
+                const quater = currentScreenQuaters[i];
+                if (dx == quater.dx && dy == quater.dy) {
+                    currentQuater = i;
+                    delete currentScreenQuaters[i];
+                    break;
+                }
+            }
+
+            /// show snap assist in next quater
+            if (currentQuater == -1) return;
+            checkToShowNextQuaterAssist(window);
         }
     }
 
     function handleWindowFocus(window) {
-        if (activated) hideAssistant(false);
+        if (activated) hideAssist(false);
 
         /// Store timestamp of last window activation
         if (sortByLastActive) {
@@ -367,7 +389,40 @@ Window {
         }
     }
 
-    function showAssistant(dx, dy, height, width) {
+    function delayedShowAssist(dx, dy, height, width, window){
+            clients = Object.values(workspace.clients).filter(c => shouldShowWindow(c));
+            if (clients.length == 0) return;
+
+            if (sortByLastActive) sortClientsByLastActive();
+            if (descendingOrder) clients = clients.reverse();
+
+            cardWidth = currentScreenWidth / 5;
+            cardHeight = cardWidth / 1.68;
+            lastActiveClient = workspace.activeClient;
+
+            timer.setTimeout(function(){
+                mainWindow.requestActivate();
+                keyboardHandler.forceActiveFocus();
+                showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);
+            }, 1);
+    }
+
+    function checkToShowNextQuaterAssist(lastSelectedClient){
+        const keys = Object.keys(currentScreenQuaters);
+        const l = keys.length;
+
+        if (l > 0) {
+            if (lastSelectedClient) filteredClients.push(lastSelectedClient);
+            const nextQuater = currentScreenQuaters[keys[0]];
+            delete currentScreenQuaters[keys[0]];
+            delayedShowAssist(nextQuater.dx + (assistPadding / 2), nextQuater.dy + (assistPadding / 2), nextQuater.height - assistPadding, nextQuater.width - assistPadding);
+            if (lastSelectedClient) lastActiveClient = lastSelectedClient;
+        } else {
+            filteredClients = [];
+        }
+    }
+
+    function showAssist(dx, dy, height, width) {
         activated = true;
         focusedIndex = 0;
         mainWindow.width = width;
@@ -378,16 +433,23 @@ Window {
         scrollView.ScrollBar.vertical.position = 0;
     }
 
-    function hideAssistant(focusLastClient) {
+    function hideAssist(shouldFocusLastClient) {
         activated = false;
         mainWindow.x = mainWindow.width * 2;
         mainWindow.y = mainWindow.height * 2;
         mainWindow.width = 0;
         mainWindow.height = 0;
-        if(focusLastClient == true && lastActiveClient) workspace.activeClient = lastActiveClient;
+
+        /// gets called when assist closed without selecting item
+        if (shouldFocusLastClient == true) {
+            if(lastActiveClient) workspace.activeClient = lastActiveClient;
+            filteredClients = [];
+            currentScreenQuaters = {};
+        }
     }
 
     function shouldShowWindow(client) {
+        if (filteredClients.includes(client)) return false;
         if (client.active || client.specialWindow) return false;
         if (!showMinimizedWindows && client.minimized) return false;
         if (!showOtherScreensWindows && client.screen !== workspace.activeScreen) return false;
@@ -397,11 +459,12 @@ Window {
 
     function selectClient(client){
         const clientGeometry = client.geometry;
-        clientGeometry.x = mainWindow.x;
-        clientGeometry.y = mainWindow.y;
-        clientGeometry.width = mainWindow.width;
-        clientGeometry.height = mainWindow.height;
+        clientGeometry.x = mainWindow.x - (assistPadding / 2);
+        clientGeometry.y = mainWindow.y - (assistPadding / 2);
+        clientGeometry.width = mainWindow.width + assistPadding;
+        clientGeometry.height = mainWindow.height + assistPadding;
         workspace.activeClient = client;
+        checkToShowNextQuaterAssist(client);
     }
 
     function moveFocusLeft() {
@@ -425,8 +488,12 @@ Window {
     }
 
     function moveFocusDown(){
+        const clientsLen = clients.length;
         if(focusedIndex + columnsCount < clients.length) {
             focusedIndex = focusedIndex + columnsCount;
+            scrollItemIntoView(focusedIndex);
+        } else {
+            focusedIndex =  clients.length - 1;
             scrollItemIntoView(focusedIndex);
         }
     }
