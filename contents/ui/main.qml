@@ -1,4 +1,5 @@
 /// Ideas:
+/// - refactor all complex height/width calculations to use simple 8x8 virtual grid
 /// - restore previous size on un-snapping of programatically snapped window
 /// - support for Krunner text field to launch new apps
 /// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once
@@ -44,7 +45,8 @@ Window {
     property int minimalDy: 0
     property int assistPadding: 0  /// padding to add around assist (not applied to windows)
     property int layoutMode: 0 /// 0 - horizontal halve, 1 - quater, 2 - vertical halve
-    property var storedQuaterPosition: ({}) /// store quater position for Tab button switching
+    property var storedQuaterPosition: ({}) /// store initial quater position for Tab button switching
+    property var storedFirstQuaterToShow: ({}) /// store planned first quater for Tab button switching
 
     /// configurable
     property int transitionDuration
@@ -168,7 +170,7 @@ Window {
                                         leftPadding: 7
                                         color: textColor
                                         elide: Text.ElideRight
-                                        width: parent.width - 24
+                                        width: parent.width - 26
                                     }
                                 }
 
@@ -317,7 +319,7 @@ Window {
         textColor = KWin.readConfig("textColor", "#ffffff");
         cardColor = KWin.readConfig("cardColor", "#75475057");
         hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
-        backdropColor = KWin.readConfig("backdropColor", "#50000000");
+        backdropColor = KWin.readConfig("backdropColor", "#502a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
     }
@@ -541,6 +543,7 @@ Window {
             if (mainWindow.height == currentScreenHeight / 2 && mainWindow.width == currentScreenWidth / 2) {
                 /// store quater's position - to return to in the end of cycle
                 storedQuaterPosition.dx = mainWindow.x; storedQuaterPosition.dy = mainWindow.y;
+                storedFirstQuaterToShow = screenQuatersToShowNext[0];
 
                 /// make horizontal halve
                 mainWindow.height  = currentScreenHeight;
@@ -551,7 +554,7 @@ Window {
                     mainWindow.x =  minimalDx + (currentScreenWidth / 2);
                     filteredQuaters = [1, 3];
 
-                    /// special handling to avoid 0 index being missed
+                    /// special handling to show assist again for newly appeared free quater
                     if (lastActiveClient.y == minimalDy + currentScreenHeight / 2)
                         screenQuatersToShowNext[0] = {dx: minimalDx, dy: minimalDy, height: currentScreenHeight / 2, width: currentScreenWidth / 2};
                 } else {
@@ -570,9 +573,11 @@ Window {
                     mainWindow.y = minimalDy + (currentScreenHeight / 2);
                     filteredQuaters = [2, 3];
 
-                    /// special handling to avoid 0 index being missed
+                    /// special handling to show assist again for newly appeared free quater
                     if (lastActiveClient.x == minimalDx + (currentScreenWidth / 2))
                         screenQuatersToShowNext[0] = {dx: minimalDx, dy: minimalDy, height: currentScreenHeight / 2, width: currentScreenWidth / 2};
+                    else if (lastActiveClient.x == minimalDx)
+                        screenQuatersToShowNext[0] = {dx: minimalDx + (currentScreenWidth / 2), dy: minimalDy, height: currentScreenHeight / 2, width: currentScreenWidth / 2};
                 } else {
                     /// show on top
                     mainWindow.y = minimalDy;
@@ -584,6 +589,7 @@ Window {
                 mainWindow.x = storedQuaterPosition.dx; mainWindow.y = storedQuaterPosition.dy;
                 columnsCount = 2;
                 filteredQuaters = [];
+                screenQuatersToShowNext[0] = storedFirstQuaterToShow;
             }
         }
     }
