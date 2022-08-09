@@ -34,8 +34,8 @@
 		  <default>#75d9dde1</default>
 		</entry>
 		<entry name="backdropColor" type="string">
-			<label>Backdrop color</label>
-		  <default>#50000000</default>
+			<label>Background color</label>
+		  <default>#502a2e32</default>
 		</entry>
 		<entry name="textColor" type="string">
 			<label>Text color for cards</label>
@@ -44,6 +44,10 @@
 		<entry name="borderRadius" type="int">
 			<label>Border radius</label>
 		  <default>5</default>
+		</entry>
+		<entry name="transitionDuration" type="int">
+			<label>Transition duration on assist reveal</label>
+		  <default>150</default>
 		</entry>
     </group>
 </kcfg>

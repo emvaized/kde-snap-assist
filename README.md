@@ -15,3 +15,9 @@ This is my first KWin script, so bugs reports and contributions are welcome!
 Pling Store: https://www.pling.com/p/1875687/
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
+
+---
+
+Experimental in dev branch:
+- Support for quater tiling
+- Support for triple tiling: you can switch layout with the Tab key or using the button in corner
