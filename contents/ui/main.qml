@@ -277,7 +277,7 @@ Window {
     Item {
         anchors.fill: parent
         id: keyboardHandler
-        focus: true
+        //focus: true
         Keys.onPressed: function(event) {
             if (activated == false) return;
 
