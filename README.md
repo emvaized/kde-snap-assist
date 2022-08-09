@@ -3,7 +3,7 @@ This KWin script for KDE Plasma suggests other window thumbnails on snap. It tri
 Assist can be shown by dragging a window to the screen edge, as well as via default keyboard shortcuts (Super + arrows).
 
 You can select the window with mouse, as well as with arrow keys + Enter. To dismiss the assist, you can hit Escape key, press the close button or click anywhere on the empty area.
-Script also supports quater and triple tiling now: you can switch layouts with the Tab key or using the button in corner.
+Script also supports quarter and triple tiling now: you can switch layouts with the Tab key or using the button in corner.
 
 Few notes:
 - To apply new settings, you may need to re-enable the script or restart KWin
@@ -12,6 +12,6 @@ Few notes:
 
 Ideas, suggestions, bugs reports and contributions are welcome!
 
-Pling Store: https://www.pling.com/p/1875687/
+KDE Store: https://store.kde.org/p/1875687
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
