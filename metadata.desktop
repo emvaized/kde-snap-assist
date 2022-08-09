@@ -1,7 +1,9 @@
 [Desktop Entry]
-Name=KDE Snap Assist
+Name=Snap Assist
+Name[nl]=KDE-vensterrangschikking
 Comment=KWin script which suggests other window thumbnails on snap
 Comment[es]=Script de KWin que sugiere otras miniaturas de ventanas en el snap
+Comment[nl]=Een KWin-script dat venstersuggesties aanlevert als een venster aan de zijkant wordt vastgemaakt
 Comment[ru]=Скрипт, предлагающий миниатюры других окон при привязке окна к краю экрана
 Comment[uk]=Скрипт, який пропонує мініатюри інших вікон при прив'язці вікна до краю екрана
 Icon=preferences-system-windows-effect-presentwindows
@@ -15,6 +17,7 @@ X-KDE-ConfigModule=kwin/effects/configs/kcm_kwin4_genericscripted
 X-KDE-PluginInfo-Author=emvaized
 X-KDE-PluginInfo-Email=maximtsyba@gmail.com
 X-KDE-PluginInfo-Name=kdesnapassist
-X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Version=1.1
 X-KDE-PluginInfo-License=GPL
 X-KDE-PluginInfo-EnabledByDefault=true
+X-KDE-PluginInfo-Website=https://github.com/emvaized/kde-snap-assist
