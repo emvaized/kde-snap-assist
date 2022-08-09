@@ -305,7 +305,7 @@ Window {
                     break;
                 }
 
-                if (event.key !== Qt.Key_Tab && event.key !== Qt.Key_Backtab) event.accepted = true;
+                //if (event.key !== Qt.Key_Tab && event.key !== Qt.Key_Backtab) event.accepted = true;
         }
     }
 
