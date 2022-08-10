@@ -447,7 +447,6 @@ Window {
         mainWindow.y = mainWindow.height * 2;
         mainWindow.width = 0;
         mainWindow.height = 0;
-        mainWindow.hide();
 
         /// gets called when assist closed without selecting item
         if (shouldFocusLastClient == true) {
