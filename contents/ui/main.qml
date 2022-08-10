@@ -353,11 +353,11 @@ Window {
 
         /// Detect if window was snapped
         /// left/right halves
-        if (width === halfScreenWidth && height == currentScreenHeight && dy === maxArea.y) {
-            if (dx === maxArea.x) {
+        if (isEqual(width, halfScreenWidth) && isEqual(height, currentScreenHeight) && isEqual(dy, maxArea.y)) {
+            if (isEqual(dx, maxArea.x)) {
                 /// show on right half
                 delayedShowAssist(maxArea.x + window.width, window.y, undefined, undefined, window);
-            } else if (dx === maxArea.x + halfScreenWidth) {
+            } else if (isEqual(dx, maxArea.x + halfScreenWidth)) {
                 /// show on left half
                 delayedShowAssist(maxArea.x, maxArea.y, undefined, undefined, window);
             }
@@ -365,11 +365,11 @@ Window {
             layoutMode = 0;
 
         /// top/bottom halves
-        } else if (width == currentScreenWidth && height == currentScreenHeight / 2 && dx === maxArea.x) {
-            if(dy === maxArea.y) {
+        } else if (isEqual(width, currentScreenWidth) && isEqual(height, currentScreenHeight / 2) && isEqual(dx, maxArea.x)) {
+            if (isEqual(dy, maxArea.y)) {
                 /// show in bottom half
                 delayedShowAssist(maxArea.x, maxArea.y + halfScreenHeight, halfScreenHeight, currentScreenWidth);
-            } else if (dy === maxArea.y + halfScreenHeight) {
+            } else if (isEqual(dy, maxArea.y + halfScreenHeight)) {
                 /// show in top half
                 delayedShowAssist(maxArea.x, maxArea.y, halfScreenHeight, currentScreenWidth);
             }
@@ -378,7 +378,7 @@ Window {
         }
 
         /// quater tiling
-        else if (width === halfScreenWidth && height == halfScreenHeight) {
+        else if (isEqual(width, halfScreenWidth) && isEqual(height, halfScreenHeight)) {
             /// define current screen quaters
              screenQuatersToShowNext = {
                 0: { dx: maxArea.x, dy:  maxArea.y, height: halfScreenHeight, width: halfScreenWidth, },
@@ -393,7 +393,7 @@ Window {
 
             for (let i = 0; i < l; i++) {
                 const quater = screenQuatersToShowNext[i];
-                if (dx == quater.dx && dy == quater.dy) {
+                if (isEqual(dx, quater.dx) && isEqual(dy, quater.dy)) {
                     currentQuater = i;
                     delete screenQuatersToShowNext[i];
                     break;
@@ -455,6 +455,10 @@ Window {
     }
 
     /// utility functions
+    function isEqual(a, b) {
+        return a - b <= 15 && a - b >= -15;
+    }
+
     function shouldShowWindow(client) {
         if (filteredClients.includes(client)) return false;
         if (client.active || client.specialWindow) return false;
