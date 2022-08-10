@@ -281,7 +281,7 @@ Window {
         id: keyboardHandler
         //focus: true
         Keys.onPressed: function(event) {
-            if (mainWindow.activated == false) return;
+            if (activated == false) return;
 
                switch (event.key) {
                 case Qt.Key_Escape:
