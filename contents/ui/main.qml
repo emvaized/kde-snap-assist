@@ -89,6 +89,8 @@ Window {
         for (let i = 0; i < windows.length; ++i) {
             addListenersToClient(windows[i]);
         }
+        
+         mainWindow.hide();
     }
 
     /// Main view
@@ -278,7 +280,7 @@ Window {
     Item {
         anchors.fill: parent
         id: keyboardHandler
-        focus: true
+        //focus: true
         Keys.onPressed: function(event) {
             if (activated == false) return;
 
@@ -306,7 +308,7 @@ Window {
                     break;
                 }
 
-                if (event.key !== Qt.Key_Tab && event.key !== Qt.Key_Backtab) event.accepted = true;
+                //if (event.key !== Qt.Key_Tab && event.key !== Qt.Key_Backtab) event.accepted = true;
         }
     }
 
@@ -432,6 +434,7 @@ Window {
     function showAssist(dx, dy, height, width) {
         activated = true;
         focusedIndex = 0;
+        mainWindow.showNormal();
         mainWindow.width = width;
         mainWindow.height = height;
         mainWindow.x = dx;
