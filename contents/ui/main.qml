@@ -88,6 +88,8 @@ Window {
         for (let i = 0; i < windows.length; ++i) {
             addListenersToClient(windows[i]);
         }
+        
+         mainWindow.hide();
     }
 
     /// Main view
@@ -430,6 +432,7 @@ Window {
     function showAssist(dx, dy, height, width) {
         activated = true;
         focusedIndex = 0;
+        mainWindow.showNormal();
         mainWindow.width = width;
         mainWindow.height = height;
         mainWindow.x = dx;
@@ -444,6 +447,7 @@ Window {
         mainWindow.y = mainWindow.height * 2;
         mainWindow.width = 0;
         mainWindow.height = 0;
+        mainWindow.hide();
 
         /// gets called when assist closed without selecting item
         if (shouldFocusLastClient == true) {
