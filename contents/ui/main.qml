@@ -241,7 +241,8 @@ Window {
         visible: true
         flat: false
         focusPolicy: Qt.NoFocus
-        icon.name: "retweet"
+        //icon.name: "retweet"
+        icon.name: mainWindow.height == currentScreenHeight ? "view-split-left-right" : mainWindow.width == currentScreenWidth ? "view-split-top-bottom" : "view-grid-symbolic"
         icon.height: 30
         icon.width: 30
 
