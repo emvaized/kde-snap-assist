@@ -89,8 +89,8 @@ Window {
         for (let i = 0; i < windows.length; ++i) {
             addListenersToClient(windows[i]);
         }
-        
-         mainWindow.hide();
+
+        mainWindow.hide();
     }
 
     /// Main view
@@ -326,7 +326,7 @@ Window {
         backdropColor = KWin.readConfig("backdropColor", "#502a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
-        snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 25);
+        snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
     }
 
     /// listeners
@@ -348,7 +348,7 @@ Window {
 
     function onWindowResize(window) {
         if (activated) hideAssist();
-
+        
         const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
         currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
         minDx = maxArea.x; minDy = maxArea.y;
