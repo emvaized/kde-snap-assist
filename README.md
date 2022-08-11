@@ -15,3 +15,10 @@ Ideas, suggestions, bugs reports and contributions are welcome!
 KDE Store: https://store.kde.org/p/1875687
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
+
+
+---
+
+### Compatibility with [Window Gap](https://github.com/nclarius/tile-gaps) script
+
+Since version 1.2, there's an option "Snap detect tolerance" in the script settings, which basically defines how much window's size and position can differ to still be detected as "snapped" by the script. If you use some external scripts which constantly modify windows size and position, you may want to set it to `15px` or `25px`, so that Snap Assist could detect your snaps.
