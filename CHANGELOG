@@ -1,0 +1,12 @@
+1.2
+- Fix for keyboard issues on Wayland session
+- "Change layout" button icon is now dynamic, reflecting the current assist layout
+- Added option "Snap detect tolerance", which you can use for compatibility with Window Gap script
+
+1.1
+- Add support for quarter tiling
+- Add support for triple tiling (using the 'Change layout' button)
+- Small fixes and improvements
+
+1.0
+- Initial Version
