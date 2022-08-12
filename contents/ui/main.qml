@@ -209,47 +209,37 @@ Window {
         }
     }
 
-    /// Close button
-    PlasmaComponents.Button {
+    /// Close assist button
+    CornerButton {
         id: closeButton
-        x: mainWindow.width - 50
         y: 20
-        height: 30
-        width: 30
-        visible: true
-        flat: false
-        focusPolicy: Qt.NoFocus
         icon.name: "window-close"
-        icon.height: 30
-        icon.width: 30
-
-        ToolTip.delay: 1000
-        ToolTip.visible: hovered
         ToolTip.text: qsTr("Close snap assist")
-
         onClicked: hideAssist(true);
     }
 
-
-    /// Expand/collapse button
-    PlasmaComponents.Button {
+    /// Change layout button
+    CornerButton {
         id: changeSizeButton
-        x: mainWindow.width - 50
-        y: 65
-        height: 30
-        width: 30
-        visible: true
-        flat: false
-        focusPolicy: Qt.NoFocus
-        //icon.name: "retweet"
-        icon.name: mainWindow.height == currentScreenHeight ? "view-split-left-right" : mainWindow.width == currentScreenWidth ? "view-split-top-bottom" : "view-grid-symbolic"
-        icon.height: 30
-        icon.width: 30
+        y: 60
 
-        ToolTip.delay: 1000
-        ToolTip.visible: hovered
+        Image {
+            anchors.centerIn: parent
+            source: mainWindow.height == currentScreenHeight && mainWindow.width == currentScreenWidth / 2 ?
+                        "icons/vertical-half.svg"
+                        : mainWindow.width == currentScreenWidth ?
+                            "icons/horizontal-half.svg"
+                            : mainWindow.width == currentScreenWidth / 3 ?
+                                "icons/three-in-row.svg"
+                                : mainWindow.width == currentScreenWidth / 3 * 2 ?
+                                    "icons/65-35.svg"
+                                    : "icons/quarter.svg"
+            sourceSize.width: parent.width - 8
+            sourceSize.height: parent.height - 8
+            cache: true
+        }
+
         ToolTip.text: qsTr("Change layout")
-
         onClicked: switchAssistLayout();
     }
 
