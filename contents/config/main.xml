@@ -49,5 +49,9 @@
 			<label>Transition duration on assist reveal</label>
 		  <default>150</default>
 		</entry>
+		<entry name="snapDetectPrecision" type="int">
+			<label>How much px a window size can differ to still count as snapped</label>
+			<default>0</default>
+		</entry>
     </group>
 </kcfg>

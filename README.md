@@ -3,21 +3,29 @@ This KWin script for KDE Plasma suggests other window thumbnails on snap. It tri
 Assist can be shown by dragging a window to the screen edge, as well as via default keyboard shortcuts (Super + arrows).
 
 You can select the window with mouse, as well as with arrow keys + Enter. To dismiss the assist, you can hit Escape key, press the close button or click anywhere on the empty area.
+Script also supports quarter and triple tiling now: you can switch layouts with the Tab key or using the button in corner.
 
 Few notes:
-- Script does not support quater tiling, only side-to-side tiling 
-- To apply new settings, you may need to re-enable the script
-- Assist will not show if you have no other windows matching the conditions set in the script configs 
+- To apply new settings, you may need to re-enable the script or restart KWin
+- Assist will not show if you have no other windows matching the conditions set in the script settings 
 - I only tested the scripts on monitors with 1080p and 720p resolution with 100% scaling. It may misbehave on other resolutions or scaling — please report your issues
 
-This is my first KWin script, so bugs reports and contributions are welcome!
+Ideas, suggestions, bugs reports and contributions are welcome!
 
-Pling Store: https://www.pling.com/p/1875687/
+KDE Store: https://store.kde.org/p/1875687
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
 
+
 ---
 
-Experimental in dev branch:
-- Support for quater tiling
-- Support for triple tiling: you can switch layout with the Tab key or using the button in corner
+### Compatibility with [Window Gap](https://github.com/nclarius/tile-gaps) script
+
+Since version 1.2, there's an option "Snap detect tolerance" in the script settings, which basically defines how much window's size and position can differ to still be detected as "snapped" by the script. If you use some external scripts which constantly modify windows size and position, you may want to set it to `15px` or `25px`, so that Snap Assist could detect your snaps.
+
+--- 
+
+### Donate
+If you really enjoy this product, there's no better way to thank for it than to send a couple of bucks for coffee :)
+
+<a href="https://www.paypal.com/donate/?business=2KDNGXNUVZW7N&no_recurring=0&currency_code=USD"><img src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" height="25"/></a>
