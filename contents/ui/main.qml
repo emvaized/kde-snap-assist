@@ -338,7 +338,7 @@ Window {
 
     function onWindowResize(window) {
         if (activated) hideAssist();
-        
+
         const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
         currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
         minDx = maxArea.x; minDy = maxArea.y;
@@ -400,6 +400,43 @@ Window {
             checkToShowNextQuaterAssist(window);
             layoutMode = 1;
             columnsCount = 2;
+        }
+
+        /// 3-in-row tiling
+        else if (isEqual(height, currentScreenHeight)) {
+            const thirdOfScreenWidth = currentScreenWidth / 3;
+            if (isEqual(width, thirdOfScreenWidth)) {
+                /// define current screen thirds
+                screenQuatersToShowNext = {
+                    0: { dx: minDx, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                    1: { dx: minDx + thirdOfScreenWidth, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                    2: { dx: minDx + (thirdOfScreenWidth * 2), dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                };
+
+                /// detect which quater snapped window takes
+                let currentQuater = -1;
+                let l = Object.keys(screenQuatersToShowNext).length;
+
+                for (let i = 0; i < l; i++) {
+                    const quater = screenQuatersToShowNext[i];
+                    if (isEqual(dx, quater.dx) && isEqual(dy, quater.dy)) {
+                        currentQuater = i;
+                        delete screenQuatersToShowNext[i];
+                        break;
+                    }
+                }
+
+                /// show snap assist in next quater
+                if (currentQuater == -1) return;
+                checkToShowNextQuaterAssist(window);
+                layoutMode = 3;
+                columnsCount = 1;
+            } else if (isEqual(width, thirdOfScreenWidth * 2)) {
+                /// 65-35 layout
+                layoutMode = 3;
+                columnsCount = 1;
+                delayedShowAssist(isEqual(dx, minDx) ? minDx + (thirdOfScreenWidth * 2) : minDx, minDy, currentScreenHeight, thirdOfScreenWidth);
+            }
         }
     }
 
@@ -483,7 +520,7 @@ Window {
             if (lastSelectedClient) filteredClients.push(lastSelectedClient);
             const nextQuater = screenQuatersToShowNext[keys[0]];
             delete screenQuatersToShowNext[keys[0]];
-            columnsCount = 2;
+            if (layoutMode !== 3) columnsCount = 2;
             delayedShowAssist(nextQuater.dx + (assistPadding / 2), nextQuater.dy + (assistPadding / 2), nextQuater.height - assistPadding, nextQuater.width - assistPadding);
             if (lastSelectedClient) lastActiveClient = lastSelectedClient;
             return true;
@@ -591,6 +628,49 @@ Window {
                 columnsCount = 2;
                 filteredQuaters = [];
                 screenQuatersToShowNext[0] = storedFirstQuaterToShow;
+            }
+        } else if (layoutMode == 3) {
+            /// three-in-a-row layout
+
+            const thirdOfScreenWidth = currentScreenWidth / 3;
+
+            if (lastActiveClient.x == minDx + thirdOfScreenWidth) {
+                /// snapped window in the center
+                if (isEqual(mainWindow.x, minDx)) {
+                    /// move third to right
+                    mainWindow.x = minDx + (thirdOfScreenWidth * 2);
+                    filteredQuaters = [2];
+                    screenQuatersToShowNext[0] = {dx: minDx, dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth};
+                } else {
+                    /// move third to left
+                    mainWindow.x = minDx;
+                    filteredQuaters = [];
+                    delete screenQuatersToShowNext[0];
+                }
+            } else {
+                /// snapped window on the side
+                if (isEqual(mainWindow.width, thirdOfScreenWidth)) {
+                    /// expand to take two thirds
+                    storedQuaterPosition.dx = mainWindow.x;
+                    mainWindow.width = thirdOfScreenWidth * 2;
+                    columnsCount = 2;
+                    filteredQuaters = isEqual(mainWindow.x, minDx) ? [1] : [2];
+
+                } else if (isEqual(mainWindow.height, currentScreenHeight / 2)) {
+                    /// return to initial position
+                    mainWindow.width = thirdOfScreenWidth;
+                    mainWindow.height = currentScreenHeight;
+                    mainWindow.x = storedQuaterPosition.dx;
+                    columnsCount = 1;
+                    filteredQuaters = [];
+                   delete screenQuatersToShowNext[0];
+                }
+                  else if (isEqual(mainWindow.width, thirdOfScreenWidth * 2)) {
+                    /// show vertically
+                    mainWindow.height = currentScreenHeight / 2;
+                    filteredQuaters = [1, 2];
+                    screenQuatersToShowNext[0] = {dx: mainWindow.x, dy: minDy + (currentScreenHeight / 2), height: currentScreenHeight / 2, width: mainWindow.width};
+                  }
             }
         }
     }
