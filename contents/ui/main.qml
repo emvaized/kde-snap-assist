@@ -15,7 +15,7 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 
 Window {
     id: mainWindow
-    flags: Qt.X11BypassWindowManagerHint
+    flags: Qt.FramelessWindowHint | Qt.X11BypassWindowManagerHint
     visible: true
     color: "transparent"
     x: mainWindow.width * 2
