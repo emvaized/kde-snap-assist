@@ -443,11 +443,6 @@ Window {
                 checkToShowNextQuaterAssist(window);
                 layoutMode = 3;
                 columnsCount = 1;
-            } else if (isEqual(width, thirdOfScreenWidth * 2)) {
-                /// 65-35 layout
-                layoutMode = 3;
-                columnsCount = 1;
-                delayedShowAssist(isEqual(dx, minDx) ? minDx + (thirdOfScreenWidth * 2) : minDx, minDy, currentScreenHeight, thirdOfScreenWidth);
             }
         }
     }
