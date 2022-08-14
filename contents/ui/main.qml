@@ -1,5 +1,5 @@
 /// Ideas:
-/// - refactor all complex height/width calculations to use simple 8x8 virtual grid
+/// - refactor all complex height/width calculations to use simple 12x12 virtual grid
 /// - restore previous size on un-snapping of programatically snapped window
 /// - support for Krunner text field to launch new apps
 /// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once
@@ -15,7 +15,7 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 
 Window {
     id: mainWindow
-    flags: Qt.X11BypassWindowManagerHint
+    flags: Qt.FramelessWindowHint | Qt.X11BypassWindowManagerHint
     visible: true
     color: "transparent"
     x: mainWindow.width * 2
@@ -34,6 +34,7 @@ Window {
     property int columnsCount: 2 /// calculated depending on available width
     property int gridSpacing: 25 /// maybe should be configurable?
     property bool cycleKeyboard: false /// not in use
+    property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
 
     /// for quater tiling
     property var screenQuatersToShowNext: ({}) /// store next quaters to show assist after selection
@@ -73,6 +74,10 @@ Window {
         }
         function onClientAdded(window) {
             addListenersToClient(window);
+        }
+        function onClientFullScreenSet(client, isFullScreen, isUser) {
+            /// we likely don't want assist to be shown when user exited fullscreen mode
+            if (isFullScreen == false) preventAssistFromShowing();
         }
     }
 
@@ -209,47 +214,37 @@ Window {
         }
     }
 
-    /// Close button
-    PlasmaComponents.Button {
+    /// Close assist button
+    CornerButton {
         id: closeButton
-        x: mainWindow.width - 50
         y: 20
-        height: 30
-        width: 30
-        visible: true
-        flat: false
-        focusPolicy: Qt.NoFocus
         icon.name: "window-close"
-        icon.height: 30
-        icon.width: 30
-
-        ToolTip.delay: 1000
-        ToolTip.visible: hovered
         ToolTip.text: qsTr("Close snap assist")
-
         onClicked: hideAssist(true);
     }
 
-
-    /// Expand/collapse button
-    PlasmaComponents.Button {
+    /// Change layout button
+    CornerButton {
         id: changeSizeButton
-        x: mainWindow.width - 50
-        y: 65
-        height: 30
-        width: 30
-        visible: true
-        flat: false
-        focusPolicy: Qt.NoFocus
-        //icon.name: "retweet"
-        icon.name: mainWindow.height == currentScreenHeight ? "view-split-left-right" : mainWindow.width == currentScreenWidth ? "view-split-top-bottom" : "view-grid-symbolic"
-        icon.height: 30
-        icon.width: 30
+        y: 60
 
-        ToolTip.delay: 1000
-        ToolTip.visible: hovered
+        Image {
+            anchors.centerIn: parent
+            source: mainWindow.height == currentScreenHeight && mainWindow.width == currentScreenWidth / 2 ?
+                        "icons/vertical-half.svg"
+                        : mainWindow.width == currentScreenWidth ?
+                            "icons/horizontal-half.svg"
+                            : mainWindow.width == currentScreenWidth / 3 ?
+                                "icons/three-in-row.svg"
+                                : mainWindow.width == currentScreenWidth / 3 * 2 ?
+                                    "icons/65-35.svg"
+                                    : "icons/quarter.svg"
+            sourceSize.width: parent.width - 8
+            sourceSize.height: parent.height - 8
+            cache: true
+        }
+
         ToolTip.text: qsTr("Change layout")
-
         onClicked: switchAssistLayout();
     }
 
@@ -314,6 +309,13 @@ Window {
     }
 
     /// Functions
+    function preventAssistFromShowing(){
+        preventFromShowing = true;
+        timer.setTimeout(function(){
+            preventFromShowing = false;
+        }, 300);
+    }
+
     function loadConfigs() {
         sortByLastActive = KWin.readConfig("sortByLastActive", true);
         descendingOrder = KWin.readConfig("descendingOrder", true);
@@ -332,7 +334,7 @@ Window {
     /// listeners
     function addListenersToClient(client) {
         client.frameGeometryChanged.connect(function() {
-            if (!client.move && !client.resize && activated == false) onWindowResize(client);
+            if (!client.move && !client.resize && activated == false && preventFromShowing == false) onWindowResize(client);
         });
     }
 
@@ -348,7 +350,7 @@ Window {
 
     function onWindowResize(window) {
         if (activated) hideAssist();
-        
+
         const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
         currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
         minDx = maxArea.x; minDy = maxArea.y;
@@ -410,6 +412,38 @@ Window {
             checkToShowNextQuaterAssist(window);
             layoutMode = 1;
             columnsCount = 2;
+        }
+
+        /// 3-in-row tiling
+        else if (isEqual(height, currentScreenHeight)) {
+            const thirdOfScreenWidth = currentScreenWidth / 3;
+            if (isEqual(width, thirdOfScreenWidth)) {
+                /// define current screen thirds
+                screenQuatersToShowNext = {
+                    0: { dx: minDx, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                    1: { dx: minDx + thirdOfScreenWidth, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                    2: { dx: minDx + (thirdOfScreenWidth * 2), dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
+                };
+
+                /// detect which quater snapped window takes
+                let currentQuater = -1;
+                let l = Object.keys(screenQuatersToShowNext).length;
+
+                for (let i = 0; i < l; i++) {
+                    const quater = screenQuatersToShowNext[i];
+                    if (isEqual(dx, quater.dx) && isEqual(dy, quater.dy)) {
+                        currentQuater = i;
+                        delete screenQuatersToShowNext[i];
+                        break;
+                    }
+                }
+
+                /// show snap assist in next quater
+                if (currentQuater == -1) return;
+                checkToShowNextQuaterAssist(window);
+                layoutMode = 3;
+                columnsCount = 1;
+            }
         }
     }
 
@@ -493,7 +527,7 @@ Window {
             if (lastSelectedClient) filteredClients.push(lastSelectedClient);
             const nextQuater = screenQuatersToShowNext[keys[0]];
             delete screenQuatersToShowNext[keys[0]];
-            columnsCount = 2;
+            if (layoutMode !== 3) columnsCount = 2;
             delayedShowAssist(nextQuater.dx + (assistPadding / 2), nextQuater.dy + (assistPadding / 2), nextQuater.height - assistPadding, nextQuater.width - assistPadding);
             if (lastSelectedClient) lastActiveClient = lastSelectedClient;
             return true;
@@ -602,12 +636,55 @@ Window {
                 filteredQuaters = [];
                 screenQuatersToShowNext[0] = storedFirstQuaterToShow;
             }
+        } else if (layoutMode == 3) {
+            /// three-in-a-row layout
+
+            const thirdOfScreenWidth = currentScreenWidth / 3;
+
+            if (lastActiveClient.x == minDx + thirdOfScreenWidth) {
+                /// snapped window in the center
+                if (isEqual(mainWindow.x, minDx)) {
+                    /// move third to right
+                    mainWindow.x = minDx + (thirdOfScreenWidth * 2);
+                    filteredQuaters = [2];
+                    screenQuatersToShowNext[0] = {dx: minDx, dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth};
+                } else {
+                    /// move third to left
+                    mainWindow.x = minDx;
+                    filteredQuaters = [];
+                    delete screenQuatersToShowNext[0];
+                }
+            } else {
+                /// snapped window on the side
+                if (isEqual(mainWindow.width, thirdOfScreenWidth)) {
+                    /// expand to take two thirds
+                    storedQuaterPosition.dx = mainWindow.x;
+                    mainWindow.width = thirdOfScreenWidth * 2;
+                    columnsCount = 2;
+                    filteredQuaters = isEqual(mainWindow.x, minDx) ? [1] : [2];
+
+                } else if (isEqual(mainWindow.height, currentScreenHeight / 2)) {
+                    /// return to initial position
+                    mainWindow.width = thirdOfScreenWidth;
+                    mainWindow.height = currentScreenHeight;
+                    mainWindow.x = storedQuaterPosition.dx;
+                    columnsCount = 1;
+                    filteredQuaters = [];
+                   delete screenQuatersToShowNext[0];
+                }
+                  else if (isEqual(mainWindow.width, thirdOfScreenWidth * 2)) {
+                    /// show vertically
+                    mainWindow.height = currentScreenHeight / 2;
+                    filteredQuaters = [1, 2];
+                    screenQuatersToShowNext[0] = {dx: mainWindow.x, dy: minDy + (currentScreenHeight / 2), height: currentScreenHeight / 2, width: mainWindow.width};
+                  }
+            }
         }
     }
 
     /// keyboard navigation
     function selectClient(client){
-        const clientGeometry = client.geometry;
+        const clientGeometry = client.frameGeometry;
         clientGeometry.x = mainWindow.x - (assistPadding / 2);
         clientGeometry.y = mainWindow.y - (assistPadding / 2);
         clientGeometry.width = mainWindow.width + assistPadding;
