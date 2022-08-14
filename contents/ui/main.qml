@@ -34,6 +34,7 @@ Window {
     property int columnsCount: 2 /// calculated depending on available width
     property int gridSpacing: 25 /// maybe should be configurable?
     property bool cycleKeyboard: false /// not in use
+    property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
 
     /// for quater tiling
     property var screenQuatersToShowNext: ({}) /// store next quaters to show assist after selection
@@ -73,6 +74,10 @@ Window {
         }
         function onClientAdded(window) {
             addListenersToClient(window);
+        }
+        function onClientFullScreenSet(client, isFullScreen, isUser) {
+            /// we likely don't want assist to be shown when user exited fullscreen mode
+            if (isFullScreen == false) preventAssistFromShowing();
         }
     }
 
@@ -304,6 +309,13 @@ Window {
     }
 
     /// Functions
+    function preventAssistFromShowing(){
+        preventFromShowing = true;
+        timer.setTimeout(function(){
+            preventFromShowing = false;
+        }, 300);
+    }
+
     function loadConfigs() {
         sortByLastActive = KWin.readConfig("sortByLastActive", true);
         descendingOrder = KWin.readConfig("descendingOrder", true);
@@ -322,7 +334,7 @@ Window {
     /// listeners
     function addListenersToClient(client) {
         client.frameGeometryChanged.connect(function() {
-            if (!client.move && !client.resize && activated == false) onWindowResize(client);
+            if (!client.move && !client.resize && activated == false && preventFromShowing == false) onWindowResize(client);
         });
     }
 
