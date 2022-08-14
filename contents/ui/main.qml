@@ -689,7 +689,7 @@ Window {
 
     /// keyboard navigation
     function selectClient(client){
-        const clientGeometry = client.geometry;
+        const clientGeometry = client.frameGeometry;
         clientGeometry.x = mainWindow.x - (assistPadding / 2);
         clientGeometry.y = mainWindow.y - (assistPadding / 2);
         clientGeometry.width = mainWindow.width + assistPadding;
