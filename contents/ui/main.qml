@@ -1,5 +1,5 @@
 /// Ideas:
-/// - refactor all complex height/width calculations to use simple 8x8 virtual grid
+/// - refactor all complex height/width calculations to use simple 12x12 virtual grid
 /// - restore previous size on un-snapping of programatically snapped window
 /// - support for Krunner text field to launch new apps
 /// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once
