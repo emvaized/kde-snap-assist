@@ -38,6 +38,8 @@ Window {
 
     /// for tracking snapped windows
     property bool trackSnappedWindows: true
+    property bool showSnappedWindows: false
+    property bool minimizeSnappedTogether: true
     property var snappedWindowGroups: ([]) /// store snapped windows in groups
     property var snappedWindows: ([]) /// temporarly store windows which will be added in group on finish
 
@@ -83,6 +85,23 @@ Window {
         function onClientFullScreenSet(client, isFullScreen, isUser) {
             /// we likely don't want assist to be shown when user exited fullscreen mode
             if (isFullScreen == false) preventAssistFromShowing();
+        }
+
+        function onClientMinimized(client){
+            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
+            const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
+            if (i > -1) {
+                const windows = snappedWindowGroups[i].windows;
+                windows.forEach(function(window) { workspace.getClient(window).minimized = true; });
+            }
+        }
+        function onClientUnminimized(client){
+            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
+            const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
+            if (i > -1) {
+                const windows = snappedWindowGroups[i].windows;
+                windows.forEach(function(window) { workspace.getClient(window).minimized = false; });
+            }
         }
     }
 
@@ -563,6 +582,7 @@ Window {
         if (!showMinimizedWindows && client.minimized) return false;
         if (!showOtherScreensWindows && client.screen !== workspace.activeScreen) return false;
         if (!showOtherDesktopsWindows && client.desktop !== workspace.currentDesktop) return false;
+        if (!showSnappedWindows && snappedWindowGroups.findIndex(group => group.windows.includes(client.windowId)) > -1) return false;
         return true;
     }
 
