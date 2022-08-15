@@ -36,9 +36,14 @@ Window {
     property bool cycleKeyboard: false /// not in use
     property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
 
+    /// for tracking snapped windows
+    property bool trackSnappedWindows: true
+    property var snappedWindowGroups: ([]) /// store snapped windows in groups
+    property var snappedWindows: ([]) /// temporarly store windows which will be added in group on finish
+
     /// for quater tiling
     property var screenQuatersToShowNext: ({}) /// store next quaters to show assist after selection
-    property var filteredClients: ([]) /// clients to filter (which are already snapped)
+    property var filteredClients: ([]) /// clients to filter (which are already snapped in current flow)
     property var filteredQuaters: ([]) /// quaters to ignore during iteration (occupied by big window)
     property int currentScreenWidth: 1
     property int currentScreenHeight: 1
@@ -70,7 +75,7 @@ Window {
             handleWindowFocus(window);
         }
         function onClientRemoved(window) {
-            if (sortByLastActive) delete activationTime[window.windowId];
+            handleWindowClose(window);
         }
         function onClientAdded(window) {
             addListenersToClient(window);
@@ -248,7 +253,6 @@ Window {
         onClicked: switchAssistLayout();
     }
 
-
     /// Timer to delay snap assist reveal.
     /// Delay is added to get the updated snapped window's size and location,
     /// which sometimes differs from the half of the screen
@@ -309,13 +313,8 @@ Window {
     }
 
     /// Functions
-    function preventAssistFromShowing(){
-        preventFromShowing = true;
-        timer.setTimeout(function(){
-            preventFromShowing = false;
-        }, 300);
-    }
 
+    /// general
     function loadConfigs() {
         sortByLastActive = KWin.readConfig("sortByLastActive", true);
         descendingOrder = KWin.readConfig("descendingOrder", true);
@@ -331,10 +330,30 @@ Window {
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
     }
 
+    function selectClient(client){
+        const clientGeometry = client.frameGeometry;
+        clientGeometry.x = mainWindow.x - (assistPadding / 2);
+        clientGeometry.y = mainWindow.y - (assistPadding / 2);
+        clientGeometry.width = mainWindow.width + assistPadding;
+        clientGeometry.height = mainWindow.height + assistPadding;
+        workspace.activeClient = client;
+
+        if (trackSnappedWindows) {
+            removeWindowFromTrack(client.windowId); /// remove from track if was previously snapped
+            snappedWindows.push(client.windowId);
+        }
+
+        checkToShowNextQuaterAssist(client);
+    }
+
     /// listeners
     function addListenersToClient(client) {
         client.frameGeometryChanged.connect(function() {
             if (!client.move && !client.resize && activated == false && preventFromShowing == false) onWindowResize(client);
+        });
+
+        client.clientStartUserMovedResized.connect(function(cl){
+            if (trackSnappedWindows) removeWindowFromTrack(cl.windowId);
         });
     }
 
@@ -447,6 +466,21 @@ Window {
         }
     }
 
+    function handleWindowClose(window){
+        if (sortByLastActive) delete activationTime[window.windowId];
+
+        if (trackSnappedWindows) {
+            /// remove window if it was snapped
+            removeWindowFromTrack(window.windowId, function(remainingWindows){
+                /// callback when snapped window was closed.
+                /// we can show the assist here,
+                /// or try to resize other windows from the same group to cover the area
+
+            });
+        }
+    }
+
+
     /// assist
     function delayedShowAssist(dx, dy, height, width, window){
         clients = Object.values(workspace.clients).filter(c => shouldShowWindow(c));
@@ -460,6 +494,7 @@ Window {
         lastActiveClient = workspace.activeClient;
 
         timer.setTimeout(function(){
+            snappedWindows.push((window ?? workspace.activeClient).windowId);
             mainWindow.requestActivate();
             keyboardHandler.forceActiveFocus();
             showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);
@@ -478,6 +513,13 @@ Window {
         scrollView.ScrollBar.vertical.position = 0;
     }
 
+    function preventAssistFromShowing(){
+        preventFromShowing = true;
+        timer.setTimeout(function(){
+            preventFromShowing = false;
+        }, 300);
+    }
+
     function hideAssist(shouldFocusLastClient) {
         activated = false;
         mainWindow.x = mainWindow.width * 2;
@@ -488,11 +530,27 @@ Window {
         /// gets called when assist closed without selecting item
         if (shouldFocusLastClient == true) {
             if(lastActiveClient) workspace.activeClient = lastActiveClient;
-            filteredClients = [];
-            filteredQuaters = [];
-            screenQuatersToShowNext = {};
+            finishSnap();
         }
     }
+
+    function finishSnap(){
+        /// gets called when close assist, and no other assists awaiting to show
+        if (trackSnappedWindows && snappedWindows.length > 0) {
+            /// store snapped windows
+            const d = new Date();
+            snappedWindowGroups.push({
+                timestamp: d.getTime(),
+                windows: snappedWindows
+            });
+        }
+
+        filteredClients = [];
+        filteredQuaters = [];
+        snappedWindows = [];
+        screenQuatersToShowNext = {};
+    }
+
 
     /// utility functions
     function isEqual(a, b) {
@@ -517,6 +575,21 @@ Window {
         });
     }
 
+    function removeWindowFromTrack(windowId, callback){
+        let i2 = -1;
+        const i = snappedWindowGroups.findIndex(function(group) {
+            i2 = group.windows.indexOf(windowId);
+            return i2 > -1;
+        });
+
+        if (i > -1) {
+            snappedWindowGroups[i].windows.splice(i2, 1);
+            if (snappedWindowGroups[i].windows.length < 2) snappedWindowGroups.splice(i, 1);
+            else if (callback) { callback(snappedWindowGroups[i].windows); }
+        }
+    }
+
+
     /// for quater tiling
     function checkToShowNextQuaterAssist(lastSelectedClient){
         const keys = Object.keys(screenQuatersToShowNext).filter(quaterIndex => !filteredQuaters.includes(parseInt(quaterIndex)));
@@ -533,8 +606,7 @@ Window {
             return true;
         } else {
             /// no other quaters to show assist — we can reset the variables
-            filteredClients = [];
-            filteredQuaters = [];
+            finishSnap();
             return false;
         }
     }
@@ -682,17 +754,8 @@ Window {
         }
     }
 
-    /// keyboard navigation
-    function selectClient(client){
-        const clientGeometry = client.frameGeometry;
-        clientGeometry.x = mainWindow.x - (assistPadding / 2);
-        clientGeometry.y = mainWindow.y - (assistPadding / 2);
-        clientGeometry.width = mainWindow.width + assistPadding;
-        clientGeometry.height = mainWindow.height + assistPadding;
-        workspace.activeClient = client;
-        checkToShowNextQuaterAssist(client)
-    }
 
+    /// keyboard navigation
     function moveFocusLeft() {
         focusedIndex = focusedIndex - 1;
         if (focusedIndex < 0) focusedIndex = cycleKeyboard ? clients.length - 1 : 0;
