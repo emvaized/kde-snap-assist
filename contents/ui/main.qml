@@ -38,8 +38,6 @@ Window {
 
     /// for tracking snapped windows
     property bool trackSnappedWindows: true
-    property bool showSnappedWindows: false
-    property bool minimizeSnappedTogether: true
     property var snappedWindowGroups: ([]) /// store snapped windows in groups
     property var snappedWindows: ([]) /// temporarly store windows which will be added in group on finish
 
@@ -69,6 +67,8 @@ Window {
     property bool showOtherDesktopsWindows
     property bool descendingOrder
     property int snapDetectPrecision
+    property bool showSnappedWindows
+    property bool minimizeSnappedTogether
 
     Connections {
         target: workspace
@@ -347,6 +347,8 @@ Window {
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
+        showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
+        minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
     }
 
     function selectClient(client){

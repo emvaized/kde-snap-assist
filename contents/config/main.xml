@@ -17,6 +17,10 @@
 		  <label>Show minimized windows</label>
 		  <default>true</default>
 		</entry>
+		<entry name="showSnappedWindows" type="bool">
+		  <label>Show previously snapped windows</label>
+		  <default>true</default>
+		</entry>
 		<entry name="sortByLastActive" type="bool">
 		  <label>Sort windows by last active</label>
 		  <default>true</default>
@@ -24,6 +28,10 @@
 		<entry name="descendingOrder" type="bool">
 			<label>Sort windows in descending order (newest > oldest)</label>
 		  <default>true</default>
+		</entry>
+		<entry name="minimizeSnappedTogether" type="bool">
+			<label>Minimize/restore snapped windows simultaniously</label>
+		  <default>false</default>
 		</entry>
 		<entry name="cardColor" type="string">
 			<label>Card color</label>
