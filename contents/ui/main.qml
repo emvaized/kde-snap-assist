@@ -575,7 +575,7 @@ Window {
 
     function finishSnap(){
         /// gets called when close assist, and no other assists awaiting to show
-        if (trackSnappedWindows && snappedWindows.length > 0) {
+        if (trackSnappedWindows && snappedWindows.length > 1) {
             /// store snapped windows
             const d = new Date();
             snappedWindowGroups.push({
