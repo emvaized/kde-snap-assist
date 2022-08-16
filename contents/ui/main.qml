@@ -383,7 +383,7 @@ Window {
             activationTime[window.windowId] = d.getTime();
         }
 
-        /// Raise all snapped windows
+        /// Raise all snapped windows together
         if (trackSnappedWindows && raiseSnappedTogether && !activated) {
             const i = snappedWindowGroups.findIndex((group) => group.windows.includes(window.windowId));
             if (i > -1) {
@@ -391,15 +391,16 @@ Window {
                 const windows = snappedWindowGroups[i].windows;
 
                 for(let i = 0, l = windows.length; i < l; i++) {
-                    if (windows[i] !== window.windowId)
-                        workspace.activeClient = workspace.getClient(windows[i]);
+                    if (windows[i] !== window.windowId) {
+                        const w = workspace.getClient(windows[i]);
+                        if (!w.minimized) workspace.activeClient = w;
+                    }
                 }
 
                 workspace.activeClient = window;
-
                 timer.setTimeout(function(){
                     ignoreFocusChange = false;
-                }, 300);
+                }, 100);
             }
         }
     }
