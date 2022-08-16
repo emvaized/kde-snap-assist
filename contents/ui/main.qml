@@ -260,6 +260,7 @@ Window {
             sourceSize.width: parent.width - 8
             sourceSize.height: parent.height - 8
             cache: true
+            opacity: 0.85
         }
 
         ToolTip.text: qsTr("Change layout")
