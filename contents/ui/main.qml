@@ -71,15 +71,13 @@ Window {
     property bool showSnappedWindows
     property bool minimizeSnappedTogether
     property bool raiseSnappedTogether
+    property bool fillOnSnappedClose
 
     Connections {
         target: workspace
         function onClientActivated(window) {
             if (!window) return;
             handleWindowFocus(window);
-        }
-        function onClientRemoved(window) {
-            handleWindowClose(window);
         }
         function onClientAdded(window) {
             addListenersToClient(window);
@@ -91,11 +89,11 @@ Window {
 
         function onClientMinimized(client){
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            applyActionToAssosiatedSnapGroup(client, function(cl){cl.minimized = true; });
+            applyActionToAssosiatedSnapGroup(client, function(cl){ if (cl) cl.minimized = true; });
         }
         function onClientUnminimized(client){
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            applyActionToAssosiatedSnapGroup(client, function(cl) {cl.minimized = false; });
+            applyActionToAssosiatedSnapGroup(client, function(cl) { if (cl) cl.minimized = false; });
         }
     }
 
@@ -345,6 +343,8 @@ Window {
         showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
+        fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
+        trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose;
     }
 
     function selectClient(client){
@@ -372,6 +372,10 @@ Window {
         client.clientStartUserMovedResized.connect(function(cl){
             if (trackSnappedWindows) removeWindowFromTrack(cl.windowId);
         });
+
+        client.windowClosed.connect(function(window){
+            handleWindowClose(client);
+        });
     }
 
     function handleWindowFocus(window) {
@@ -394,7 +398,7 @@ Window {
                 for(let i = 0, l = windows.length; i < l; i++) {
                     if (windows[i] !== window.windowId) {
                         const w = workspace.getClient(windows[i]);
-                        if (!w.minimized) workspace.activeClient = w;
+                        if (w && !w.minimized) workspace.activeClient = w;
                     }
                 }
 
@@ -508,13 +512,11 @@ Window {
     function handleWindowClose(window){
         if (sortByLastActive) delete activationTime[window.windowId];
 
-        if (trackSnappedWindows) {
+         if (trackSnappedWindows) {
             /// remove window if it was snapped
-            removeWindowFromTrack(window.windowId, function(remainingWindows){
+            removeWindowFromTrack(window.windowId, function(group){
                 /// callback when snapped window was closed.
-                /// we can show the assist here,
-                /// or try to resize other windows from the same group to cover the area
-
+                if (fillOnSnappedClose) fillClosedWindow(window, group);
             });
         }
     }
@@ -593,6 +595,7 @@ Window {
 
     /// utility functions
     function isEqual(a, b) {
+        /// for compatibility with scripts like Window Gap
         return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
     }
 
@@ -618,7 +621,7 @@ Window {
 
     /// snap groups
     function applyActionToAssosiatedSnapGroup(client, callback){
-        if (!client.windowId) return;
+        if (!client || !client.windowId) return;
 
         const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
         if (i > -1) {
@@ -638,8 +641,33 @@ Window {
 
         if (i > -1) {
             snappedWindowGroups[i].windows.splice(i2, 1);
+            if (callback) callback(snappedWindowGroups[i]);
             if (snappedWindowGroups[i].windows.length < 2) snappedWindowGroups.splice(i, 1);
-            else if (callback) { callback(snappedWindowGroups[i].windows); }
+        }
+    }
+
+    function fillClosedWindow(closedWindow, group){
+        /// fill the freed area on window close
+        const closedWindowGeom = closedWindow.frameGeometry;
+        const remainingWindows = group.windows;
+        for(let i = 0, l = remainingWindows.length; i < l; i++){
+            const window = workspace.getClient(remainingWindows[i]);
+            if (!window) continue;
+            if (window.windowId == closedWindow.windowId) continue;
+            const windowGeom = window.frameGeometry;
+            if (!windowGeom) continue;
+
+            if (windowGeom.x == closedWindowGeom.x && windowGeom.width == closedWindowGeom.width){
+                preventAssistFromShowing();
+                windowGeom.height += closedWindowGeom.height;
+                if(windowGeom.y > closedWindowGeom.y) windowGeom.y -= closedWindowGeom.height;
+                break;
+            } else if(windowGeom.y == closedWindowGeom.y && windowGeom.height == closedWindowGeom.height) {
+                preventAssistFromShowing();
+                windowGeom.width += closedWindowGeom.width;
+                if (windowGeom.x > closedWindowGeom.x) windowGeom.x -= closedWindowGeom.width;
+                break;
+            }
         }
     }
 

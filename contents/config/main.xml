@@ -37,6 +37,10 @@
 			<label>Raise snapped windows together</label>
 		  <default>false</default>
 		</entry>
+		<entry name="fillOnSnappedClose" type="bool">
+			<label>When close snapped window, try to fill the area</label>
+		  <default>false</default>
+		</entry>
 		<entry name="cardColor" type="string">
 			<label>Card color</label>
 		  <default>#75475057</default>
