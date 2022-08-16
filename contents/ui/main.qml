@@ -40,6 +40,7 @@ Window {
     property bool trackSnappedWindows: true
     property var snappedWindowGroups: ([]) /// store snapped windows in groups
     property var snappedWindows: ([]) /// temporarly store windows which will be added in group on finish
+    property bool ignoreFocusChange: false /// prevent endless loop for raiseSnappedTogether
 
     /// for quater tiling
     property var screenQuatersToShowNext: ({}) /// store next quaters to show assist after selection
@@ -69,6 +70,7 @@ Window {
     property int snapDetectPrecision
     property bool showSnappedWindows
     property bool minimizeSnappedTogether
+    property bool raiseSnappedTogether
 
     Connections {
         target: workspace
@@ -89,19 +91,11 @@ Window {
 
         function onClientMinimized(client){
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
-            if (i > -1) {
-                const windows = snappedWindowGroups[i].windows;
-                windows.forEach(function(window) { workspace.getClient(window).minimized = true; });
-            }
+            applyActionToAssosiatedSnapGroup(client, function(cl){cl.minimized = true; });
         }
         function onClientUnminimized(client){
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
-            if (i > -1) {
-                const windows = snappedWindowGroups[i].windows;
-                windows.forEach(function(window) { workspace.getClient(window).minimized = false; });
-            }
+            applyActionToAssosiatedSnapGroup(client, function(cl) {cl.minimized = false; });
         }
     }
 
@@ -349,6 +343,7 @@ Window {
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
         showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
+        raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
     }
 
     function selectClient(client){
@@ -379,12 +374,33 @@ Window {
     }
 
     function handleWindowFocus(window) {
+        if (ignoreFocusChange) return;
         if (activated) hideAssist(false);
 
         /// Store timestamp of last window activation
         if (sortByLastActive) {
             const d = new Date();
             activationTime[window.windowId] = d.getTime();
+        }
+
+        /// Raise all snapped windows
+        if (trackSnappedWindows && raiseSnappedTogether && !activated) {
+            const i = snappedWindowGroups.findIndex((group) => group.windows.includes(window.windowId));
+            if (i > -1) {
+                ignoreFocusChange = true;
+                const windows = snappedWindowGroups[i].windows;
+
+                for(let i = 0, l = windows.length; i < l; i++) {
+                    if (windows[i] !== window.windowId)
+                        workspace.activeClient = workspace.getClient(windows[i]);
+                }
+
+                workspace.activeClient = window;
+
+                timer.setTimeout(function(){
+                    ignoreFocusChange = false;
+                }, 300);
+            }
         }
     }
 
@@ -597,7 +613,21 @@ Window {
         });
     }
 
+
+    /// snap groups
+    function applyActionToAssosiatedSnapGroup(client, callback){
+        if (!client.windowId) return;
+
+        const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
+        if (i > -1) {
+            const windows = snappedWindowGroups[i].windows;
+            windows.forEach(windowId => callback(workspace.getClient(windowId)));
+        }
+    }
+
     function removeWindowFromTrack(windowId, callback){
+        if (!windowId) return;
+
         let i2 = -1;
         const i = snappedWindowGroups.findIndex(function(group) {
             i2 = group.windows.indexOf(windowId);

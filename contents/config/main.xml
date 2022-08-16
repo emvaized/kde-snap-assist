@@ -30,7 +30,11 @@
 		  <default>true</default>
 		</entry>
 		<entry name="minimizeSnappedTogether" type="bool">
-			<label>Minimize/restore snapped windows simultaniously</label>
+			<label>Minimize/restore snapped windows together</label>
+		  <default>false</default>
+		</entry>
+		<entry name="raiseSnappedTogether" type="bool">
+			<label>Raise snapped windows together</label>
 		  <default>false</default>
 		</entry>
 		<entry name="cardColor" type="string">
