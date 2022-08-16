@@ -348,6 +348,7 @@ Window {
     }
 
     function selectClient(client){
+        client.setMaximize(false, false);
         const clientGeometry = client.frameGeometry;
         clientGeometry.x = mainWindow.x - (assistPadding / 2);
         clientGeometry.y = mainWindow.y - (assistPadding / 2);
@@ -412,6 +413,7 @@ Window {
 
     function onWindowResize(window) {
         if (activated) hideAssist();
+        finishSnap(false); /// make sure we cleared all variables
 
         const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
         currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
@@ -571,13 +573,13 @@ Window {
         /// gets called when assist closed without selecting item
         if (shouldFocusLastClient == true) {
             if(lastActiveClient) workspace.activeClient = lastActiveClient;
-            finishSnap();
+            finishSnap(true);
         }
     }
 
-    function finishSnap(){
+    function finishSnap(success){
         /// gets called when close assist, and no other assists awaiting to show
-        if (trackSnappedWindows && snappedWindows.length > 1) {
+        if (success == true && trackSnappedWindows && snappedWindows.length > 1) {
             /// store snapped windows
             const d = new Date();
             snappedWindowGroups.push({
@@ -688,7 +690,7 @@ Window {
             return true;
         } else {
             /// no other quaters to show assist — we can reset the variables
-            finishSnap();
+            finishSnap(true);
             return false;
         }
     }
