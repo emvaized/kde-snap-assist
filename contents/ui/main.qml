@@ -95,6 +95,10 @@ Window {
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
             applyActionToAssosiatedSnapGroup(client, function(cl) { if (cl) cl.minimized = false; });
         }
+        function onVirtualScreenSizeChanged(){
+            /// Fix for assist getting shown when screen size changed
+            preventAssistFromShowing(1000, () => hideAssist(false));
+        }
     }
 
     /// Doesn't work for some reason :(
@@ -556,11 +560,12 @@ Window {
         scrollView.ScrollBar.vertical.position = 0;
     }
 
-    function preventAssistFromShowing(){
+    function preventAssistFromShowing(delay, callback){
         preventFromShowing = true;
         timer.setTimeout(function(){
             preventFromShowing = false;
-        }, 300);
+            if (callback) callback();
+        }, delay ?? 300);
     }
 
     function hideAssist(shouldFocusLastClient) {
