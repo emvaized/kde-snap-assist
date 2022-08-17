@@ -4,17 +4,19 @@ New options:
 - Minimize/resotre snapped windows together
 - On close snapped window, try to fill the area
 - Filter out previosly snapped windows
+- Delay before showing the assist
 
 Improved:
 - Configs page design
 - Slightly dimmed "change layout" button's icon
 - Code structure refactored and improved
+- Added new silly logo in the store and on GitHub
 
 Fixes:
 - Fix to unmaximize windows snapped from the script
 - Fix for unwanted assist reveal on computer screens change
 - Fix for scheduled assists remain for next snap sequence
-
+- Fix for wrong snapped windows positioning on Wayland
 
 1.3
 - Possibly better icons for "Change layout" button
