@@ -34,9 +34,13 @@ In order to install this script manually from GitHub, you'd need to:
 
 Since version 1.2, there's an option "Snap detect tolerance" in the script settings, which basically defines how much window's size and position can differ to still be detected as "snapped" by the script. If you use some external scripts which constantly modify windows size and position, you may want to set it to `15px` or `25px`, so that Snap Assist could detect your snaps.
 
+### Compatibility with diagonal keyboard shortcuts
+
+Version 1.4 introduces an option "Delay before showing the assist", which gives some time to execute 'diagonal' shortcuts (`super` + `↑` + `→`) before Assist gets shown.
+
 --- 
 
 ### Donate
-If you really enjoy this product, there's no better way to thank for it than to send a couple of bucks for coffee :)
+If you really like this script, you can thank for it by buying me a coffee :)
 
 <a href="https://www.paypal.com/donate/?business=2KDNGXNUVZW7N&no_recurring=0&currency_code=USD"><img src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" height="25"/></a>
