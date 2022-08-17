@@ -18,6 +18,14 @@ KDE Store: https://store.kde.org/p/1875687
 
 
 ---
+### Manual Installation
+In order to install this script manually from GitHub, you'd need to:
+- Delete current version of script and re-login to KDE Plasma
+- Download the code as .zip (green "Code" button > "Download as ZIP"), and rename file to .kwinscript extension
+- Use the "Install from file" button in System settings > Windows manager > KWin scripts
+- Re-login to Plasma again (or restart KWin) to make sure the script is installed
+
+---
 
 ### Compatibility with [Window Gap](https://github.com/nclarius/tile-gaps) script
 
