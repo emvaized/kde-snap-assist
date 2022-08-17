@@ -1,4 +1,6 @@
 # <sub><img src="https://github.com/emvaized/kde-snap-assist/blob/dev/assets/logo.png" height="48" width="48"></sub> KDE Snap Assist
+[KDE Store](https://store.kde.org/p/1875687)
+
 This KWin script for KDE Plasma suggests other window thumbnails on snap. It tries to replicate the famous Windows 10/11 feature of the same name.
 
 Assist can be shown by dragging a window to the screen edge, as well as via default keyboard shortcuts (`super`+arrows).
@@ -11,11 +13,10 @@ Since version `1.4`, there are now experimental options for *enhanced* snapped w
 - Raise snapped windows together
 - On close snapped window, try to fill the area
 
-When you enable any of these options in settings, the script will start tracking windows snapped with the script. Group of snapped windows is remembered once you fill the layout using the assist. Window is no longer considered snapped once it was closed or moved manually using the mouse.
+When you enable any of these options in settings, the script will start tracking windows snapped with the script. Group of snapped windows is remembered once you fill the layout using the assist. Window is no longer considered snapped once it was closed or moved manually using the mouse. 
+Snap groups are not persistent, and likely will be needed to recreate on each reboot.
 
-Ideas, suggestions, bugs reports and contributions are welcome!
-
-[KDE Store](https://store.kde.org/p/1875687)
+Ideas, suggestions, bugs reports and contributions to the project are welcome!
 
 ![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
 
@@ -30,7 +31,8 @@ In order to install this script manually from GitHub, you'd need to:
 ---
 ### Troubleshooting
 - To apply the new settings, you may need to re-enable the script or restart KWin. The same is recommended if you switch from one version of the script to another
-- Assist will not show if you have no other windows matching the conditions set in the script settings. For example, by default the script does not show windows from other screens — so, if you have only one window on the current screen, assist will not show. 
+- Assist will not show if you have no other windows matching the conditions set in the script settings. For example, by default the script does not show windows from other screens — so, if you have only one window on the current screen, assist will not show
+- Script settings button is not visible, or complains that "Plugin doesn't provide configuration file in the expected location" — this is a known KWin's bug, not related to the script. Make sure your system is up-to-date, as it seems to be fixed now. If it doesn't help, you can also try to install the script [manually](https://github.com/emvaized/kde-snap-assist#manual-installation).
 
 ---
 ### Compatibility notes
@@ -54,6 +56,6 @@ Version 1.4 introduces an option "Delay before showing the assist", which gives 
 --- 
 
 ### Donate
-If you really like this script, you can thank for it by buying me a coffee :)
+If you **really** like this script, you can always thank for it by buying me a coffee :)
 
 <a href="https://www.paypal.com/donate/?business=2KDNGXNUVZW7N&no_recurring=0&currency_code=USD"><img src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" height="25"/></a>
