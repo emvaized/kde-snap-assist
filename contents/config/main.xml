@@ -69,5 +69,9 @@
 			<label>How much px a window size can differ to still count as snapped</label>
 			<default>0</default>
 		</entry>
+		<entry name="delayBeforeShowingAssist" type="int">
+			<label>Delay in ms before assist gets shown</label>
+			<default>20</default>
+		</entry>
     </group>
 </kcfg>

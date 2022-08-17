@@ -77,6 +77,7 @@ Window {
     property bool minimizeSnappedTogether
     property bool raiseSnappedTogether
     property bool fillOnSnappedClose
+    property bool delayBeforeShowingAssist
 
     Connections {
         target: workspace
@@ -342,6 +343,7 @@ Window {
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
+        delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 20);
         showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
