@@ -77,7 +77,7 @@ Window {
     property bool minimizeSnappedTogether
     property bool raiseSnappedTogether
     property bool fillOnSnappedClose
-    property bool delayBeforeShowingAssist
+    property int delayBeforeShowingAssist
 
     Connections {
         target: workspace
