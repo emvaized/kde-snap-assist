@@ -1,9 +1,9 @@
 /// Ideas:
 /// - refactor all complex height/width calculations to use simple 12x12 virtual grid
-/// - restore previous size on un-snapping of programatically snapped window
+/// - "skip layout" button, which would allow to skip to next assist position from the quatersToShowNext
 /// - support for Krunner text field to launch new apps
+/// - restore previous size on un-snapping of programatically snapped window
 /// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once
-/// - option to filter already snapped windows
 
 import QtQuick 2.12
 import QtQuick.Window 2.12
@@ -12,6 +12,11 @@ import org.kde.kwin 2.0 as KWinComponents
 import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQml.Models 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
+
+import "components"
+import "./code/assist.js" as AssistManager
+import "./code/keyboard.js" as KeyboardManager
+import "./code/windows.js" as WindowManager
 
 Window {
     id: mainWindow
@@ -36,9 +41,15 @@ Window {
     property bool cycleKeyboard: false /// not in use
     property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
 
+    /// for tracking snapped windows
+    property bool trackSnappedWindows: true
+    property var snappedWindowGroups: ([]) /// store snapped windows in groups
+    property var snappedWindows: ([]) /// temporarly store windows which will be added in group on finish
+    property bool ignoreFocusChange: false /// prevent endless loop for raiseSnappedTogether
+
     /// for quater tiling
-    property var screenQuatersToShowNext: ({}) /// store next quaters to show assist after selection
-    property var filteredClients: ([]) /// clients to filter (which are already snapped)
+    property var quatersToShowNext: ({}) /// store next quaters to show assist after selection
+    property var filteredClients: ([]) /// clients to filter (which are already snapped in current flow)
     property var filteredQuaters: ([]) /// quaters to ignore during iteration (occupied by big window)
     property int currentScreenWidth: 1
     property int currentScreenHeight: 1
@@ -62,22 +73,36 @@ Window {
     property bool showOtherDesktopsWindows
     property bool descendingOrder
     property int snapDetectPrecision
+    property bool showSnappedWindows
+    property bool minimizeSnappedTogether
+    property bool raiseSnappedTogether
+    property bool fillOnSnappedClose
+    property int delayBeforeShowingAssist
 
     Connections {
         target: workspace
         function onClientActivated(window) {
             if (!window) return;
-            handleWindowFocus(window);
-        }
-        function onClientRemoved(window) {
-            if (sortByLastActive) delete activationTime[window.windowId];
+            WindowManager.handleWindowFocus(window);
         }
         function onClientAdded(window) {
-            addListenersToClient(window);
+            WindowManager.addListenersToClient(window);
         }
         function onClientFullScreenSet(client, isFullScreen, isUser) {
             /// we likely don't want assist to be shown when user exited fullscreen mode
-            if (isFullScreen == false) preventAssistFromShowing();
+            if (isFullScreen == false) AssistManager.preventAssistFromShowing();
+        }
+        function onClientMinimized(client){
+            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
+            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl){ if (cl) cl.minimized = true; });
+        }
+        function onClientUnminimized(client){
+            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
+            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl) { if (cl) cl.minimized = false; });
+        }
+        function onVirtualScreenSizeChanged(){
+            /// Fix for assist getting shown when screen size changed
+            AssistManager.preventAssistFromShowing(1000, () => hideAssist(false));
         }
     }
 
@@ -92,7 +117,7 @@ Window {
         loadConfigs();
         const windows = workspace.clients;
         for (let i = 0; i < windows.length; ++i) {
-            addListenersToClient(windows[i]);
+            WindowManager.addListenersToClient(windows[i]);
         }
 
         mainWindow.hide();
@@ -116,7 +141,7 @@ Window {
         /// click on empty space to close
         MouseArea {
             anchors.fill: parent
-            onClicked: {  if (activated) hideAssist(true); }
+            onClicked: {  if (activated) AssistManager.hideAssist(true); }
         }
 
         ScrollView {
@@ -205,7 +230,7 @@ Window {
                                     clientItem.color = cardColor;
                                 }
                                 onClicked: {
-                                    selectClient(modelData);
+                                    WindowManager.selectClient(modelData);
                                 }
                             }
                         }
@@ -220,7 +245,7 @@ Window {
         y: 20
         icon.name: "window-close"
         ToolTip.text: qsTr("Close snap assist")
-        onClicked: hideAssist(true);
+        onClicked: AssistManager.hideAssist(true);
     }
 
     /// Change layout button
@@ -242,12 +267,12 @@ Window {
             sourceSize.width: parent.width - 8
             sourceSize.height: parent.height - 8
             cache: true
+            opacity: 0.85
         }
 
         ToolTip.text: qsTr("Change layout")
-        onClicked: switchAssistLayout();
+        onClicked: AssistManager.switchAssistLayout();
     }
-
 
     /// Timer to delay snap assist reveal.
     /// Delay is added to get the updated snapped window's size and location,
@@ -276,44 +301,33 @@ Window {
     Item {
         anchors.fill: parent
         id: keyboardHandler
-        //focus: true
         Keys.onPressed: function(event) {
             if (activated == false) return;
 
                switch (event.key) {
                 case Qt.Key_Escape:
-                    hideAssist(true);
+                    AssistManager.hideAssist(true);
                     break;
                 case Qt.Key_Left:
-                    moveFocusLeft();
+                    KeyboardManager.moveFocusLeft();
                     break;
                 case Qt.Key_Right:
-                    moveFocusRight();
+                    KeyboardManager.moveFocusRight();
                     break;
                 case Qt.Key_Up:
-                    moveFocusUp();
+                    KeyboardManager.moveFocusUp();
                     break;
                 case Qt.Key_Down:
-                    moveFocusDown();
+                    KeyboardManager.moveFocusDown();
                     break;
                 case Qt.Key_Return:
-                    selectClient(clients[focusedIndex]);
+                    WindowManager.selectClient(clients[focusedIndex]);
                     break;
                 case Qt.Key_Tab:
-                    switchAssistLayout();
+                    AssistManager.switchAssistLayout();
                     break;
                 }
-
-                //if (event.key !== Qt.Key_Tab && event.key !== Qt.Key_Backtab) event.accepted = true;
         }
-    }
-
-    /// Functions
-    function preventAssistFromShowing(){
-        preventFromShowing = true;
-        timer.setTimeout(function(){
-            preventFromShowing = false;
-        }, 300);
     }
 
     function loadConfigs() {
@@ -329,406 +343,11 @@ Window {
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
-    }
-
-    /// listeners
-    function addListenersToClient(client) {
-        client.frameGeometryChanged.connect(function() {
-            if (!client.move && !client.resize && activated == false && preventFromShowing == false) onWindowResize(client);
-        });
-    }
-
-    function handleWindowFocus(window) {
-        if (activated) hideAssist(false);
-
-        /// Store timestamp of last window activation
-        if (sortByLastActive) {
-            const d = new Date();
-            activationTime[window.windowId] = d.getTime();
-        }
-    }
-
-    function onWindowResize(window) {
-        if (activated) hideAssist();
-
-        const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
-        currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
-        minDx = maxArea.x; minDy = maxArea.y;
-        const dx = window.x, dy = window.y;
-        const width = window.width, height = window.height;
-        const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
-
-        /// Detect if window was snapped
-        /// left/right halves
-        if (isEqual(width, halfScreenWidth) && isEqual(height, currentScreenHeight) && isEqual(dy, minDy)) {
-            if (isEqual(dx, minDx)) {
-                /// show on right half
-                delayedShowAssist(minDx + window.width, window.y, undefined, undefined, window);
-            } else if (isEqual(dx, minDx + halfScreenWidth)) {
-                /// show on left half
-                delayedShowAssist(minDx, minDy, undefined, undefined, window);
-            }
-            columnsCount = 2;
-            layoutMode = 0;
-
-        /// top/bottom halves
-        } else if (isEqual(width, currentScreenWidth) && isEqual(height, halfScreenHeight) && isEqual(dx, minDx)) {
-            if (isEqual(dy, minDy)) {
-                /// show in bottom half
-                delayedShowAssist(minDx, minDy + halfScreenHeight, halfScreenHeight, currentScreenWidth);
-            } else if (isEqual(dy, minDy + halfScreenHeight)) {
-                /// show in top half
-                delayedShowAssist(minDx, minDy, halfScreenHeight, currentScreenWidth);
-            }
-            columnsCount = 3;
-            layoutMode = 2;
-        }
-
-        /// quater tiling
-        else if (isEqual(width, halfScreenWidth) && isEqual(height, halfScreenHeight)) {
-            /// define current screen quaters
-             screenQuatersToShowNext = {
-                0: { dx: minDx, dy:  minDy, height: halfScreenHeight, width: halfScreenWidth, },
-                1: { dx: minDx + halfScreenWidth, dy:  minDy, height: halfScreenHeight, width: halfScreenWidth, },
-                2: { dx: minDx, dy: minDy + halfScreenHeight, height: halfScreenHeight, width: halfScreenWidth, },
-                3: { dx: minDx + halfScreenWidth, dy:  minDy + halfScreenHeight, height: halfScreenHeight, width: halfScreenWidth, },
-            };
-
-            /// detect which quater snapped window takes
-            let currentQuater = -1;
-            let l = Object.keys(screenQuatersToShowNext).length;
-
-            for (let i = 0; i < l; i++) {
-                const quater = screenQuatersToShowNext[i];
-                if (isEqual(dx, quater.dx) && isEqual(dy, quater.dy)) {
-                    currentQuater = i;
-                    delete screenQuatersToShowNext[i];
-                    break;
-                }
-            }
-
-            /// show snap assist in next quater
-            if (currentQuater == -1) return;
-            checkToShowNextQuaterAssist(window);
-            layoutMode = 1;
-            columnsCount = 2;
-        }
-
-        /// 3-in-row tiling
-        else if (isEqual(height, currentScreenHeight)) {
-            const thirdOfScreenWidth = currentScreenWidth / 3;
-            if (isEqual(width, thirdOfScreenWidth)) {
-                /// define current screen thirds
-                screenQuatersToShowNext = {
-                    0: { dx: minDx, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
-                    1: { dx: minDx + thirdOfScreenWidth, dy:  minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
-                    2: { dx: minDx + (thirdOfScreenWidth * 2), dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth, },
-                };
-
-                /// detect which quater snapped window takes
-                let currentQuater = -1;
-                let l = Object.keys(screenQuatersToShowNext).length;
-
-                for (let i = 0; i < l; i++) {
-                    const quater = screenQuatersToShowNext[i];
-                    if (isEqual(dx, quater.dx) && isEqual(dy, quater.dy)) {
-                        currentQuater = i;
-                        delete screenQuatersToShowNext[i];
-                        break;
-                    }
-                }
-
-                /// show snap assist in next quater
-                if (currentQuater == -1) return;
-                checkToShowNextQuaterAssist(window);
-                layoutMode = 3;
-                columnsCount = 1;
-            }
-        }
-    }
-
-    /// assist
-    function delayedShowAssist(dx, dy, height, width, window){
-        clients = Object.values(workspace.clients).filter(c => shouldShowWindow(c));
-        if (clients.length == 0) return;
-
-        if (sortByLastActive) sortClientsByLastActive();
-        if (descendingOrder) clients = clients.reverse();
-
-        cardWidth = currentScreenWidth / 5;
-        cardHeight = cardWidth / 1.68;
-        lastActiveClient = workspace.activeClient;
-
-        timer.setTimeout(function(){
-            mainWindow.requestActivate();
-            keyboardHandler.forceActiveFocus();
-            showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);
-        }, 3);
-    }
-
-    function showAssist(dx, dy, height, width) {
-        activated = true;
-        focusedIndex = 0;
-        mainWindow.showNormal();
-        mainWindow.width = width;
-        mainWindow.height = height;
-        mainWindow.x = dx;
-        mainWindow.y = dy;
-        fadeInAnimation.restart();
-        scrollView.ScrollBar.vertical.position = 0;
-    }
-
-    function hideAssist(shouldFocusLastClient) {
-        activated = false;
-        mainWindow.x = mainWindow.width * 2;
-        mainWindow.y = mainWindow.height * 2;
-        mainWindow.width = 0;
-        mainWindow.height = 0;
-
-        /// gets called when assist closed without selecting item
-        if (shouldFocusLastClient == true) {
-            if(lastActiveClient) workspace.activeClient = lastActiveClient;
-            filteredClients = [];
-            filteredQuaters = [];
-            screenQuatersToShowNext = {};
-        }
-    }
-
-    /// utility functions
-    function isEqual(a, b) {
-        return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
-    }
-
-    function shouldShowWindow(client) {
-        if (filteredClients.includes(client)) return false;
-        if (client.active || client.specialWindow) return false;
-        if (!showMinimizedWindows && client.minimized) return false;
-        if (!showOtherScreensWindows && client.screen !== workspace.activeScreen) return false;
-        if (!showOtherDesktopsWindows && client.desktop !== workspace.currentDesktop) return false;
-        return true;
-    }
-
-    function sortClientsByLastActive() {
-        clients = clients.sort(function(a, b) {
-            const windowIdA = a.windowId, windowIdB = b.windowId;
-            if (activationTime[windowIdA] && !activationTime[windowIdB]) return 1;
-            if (!activationTime[windowIdA] && activationTime[windowIdB]) return -1;
-            return activationTime[windowIdA] - activationTime[windowIdB];
-        });
-    }
-
-    /// for quater tiling
-    function checkToShowNextQuaterAssist(lastSelectedClient){
-        const keys = Object.keys(screenQuatersToShowNext).filter(quaterIndex => !filteredQuaters.includes(parseInt(quaterIndex)));
-        const l = keys.length;
-
-        if (l > 0) {
-            /// need to show assist in other quaters
-            if (lastSelectedClient) filteredClients.push(lastSelectedClient);
-            const nextQuater = screenQuatersToShowNext[keys[0]];
-            delete screenQuatersToShowNext[keys[0]];
-            if (layoutMode !== 3) columnsCount = 2;
-            delayedShowAssist(nextQuater.dx + (assistPadding / 2), nextQuater.dy + (assistPadding / 2), nextQuater.height - assistPadding, nextQuater.width - assistPadding);
-            if (lastSelectedClient) lastActiveClient = lastSelectedClient;
-            return true;
-        } else {
-            /// no other quaters to show assist — we can reset the variables
-            filteredClients = [];
-            filteredQuaters = [];
-            return false;
-        }
-    }
-
-    function switchAssistLayout() {
-        if (!activated) return;
-        const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
-
-        if (layoutMode == 0) {
-            /// horizontal halve
-            if (isEqual(mainWindow.height, currentScreenHeight)) {
-                /// reduce to quater
-                mainWindow.height /= 2;
-                if (mainWindow.y !== minDy) mainWindow.y = minDy;
-                screenQuatersToShowNext[0] = {dx: mainWindow.x, dy: minDy + halfScreenHeight, height: mainWindow.height, width: mainWindow.width};
-            } else if (isEqual(mainWindow.height, halfScreenHeight)) {
-                if (isEqual(mainWindow.y, minDy)) {
-                    /// already shown in top quater, move to the bottom quater
-                    mainWindow.y = minDy + halfScreenHeight;
-                    screenQuatersToShowNext[0] = {dx: mainWindow.x, dy: minDy, height: mainWindow.height, width: mainWindow.width};
-                } else {
-                    /// return to initial position
-                    mainWindow.height *= 2;
-                    if (mainWindow.y !== minDy) mainWindow.y = minDy;
-                    delete screenQuatersToShowNext[0];
-                }
-            }
-        } else if (layoutMode == 2) {
-            /// vertical halve
-            if (isEqual(mainWindow.width, currentScreenWidth)) {
-                /// reduce to quater
-                mainWindow.width /= 2;
-                columnsCount = 2;
-                if (mainWindow.x !== minDx) mainWindow.x = minDx;
-                screenQuatersToShowNext[0] = {dx: minDy + halfScreenWidth, dy: mainWindow.y, height: mainWindow.height, width: mainWindow.width};
-            } else if (isEqual(mainWindow.width, halfScreenWidth)) {
-                if (isEqual(mainWindow.x, minDx)) {
-                    /// already shown in left quater, move to the right quater
-                    mainWindow.x = minDx + halfScreenWidth;
-                    screenQuatersToShowNext[0] = {dx: minDy, dy: mainWindow.y, height: mainWindow.height, width: mainWindow.width};
-                } else {
-                    /// return to initial position
-                    mainWindow.width *= 2;
-                    columnsCount = 3;
-                    if (mainWindow.x !== minDx) mainWindow.x = minDx;
-                    delete screenQuatersToShowNext[0];
-                }
-            }
-        } else if (layoutMode == 1) {
-            /// quater
-            if (isEqual(mainWindow.height, halfScreenHeight) && isEqual(mainWindow.width, halfScreenWidth)) {
-                /// store quater's position - to return to in the end of cycle
-                storedQuaterPosition.dx = mainWindow.x; storedQuaterPosition.dy = mainWindow.y;
-                storedFirstQuaterToShow = screenQuatersToShowNext[0];
-
-                /// make horizontal halve
-                mainWindow.height  = currentScreenHeight;
-                if (mainWindow.y !== minDy) mainWindow.y = minDy;
-                columnsCount = 2;
-                if (isEqual(lastActiveClient.x, minDx)) {
-                    /// show on the right
-                    mainWindow.x =  minDx + halfScreenWidth;
-                    filteredQuaters = [1, 3];
-
-                    /// special handling to show assist again for newly appeared free quater
-                    if (isEqual(lastActiveClient.y, minDy + halfScreenHeight))
-                        screenQuatersToShowNext[0] = {dx: minDx, dy: minDy, height: halfScreenHeight, width: halfScreenWidth};
-                } else {
-                    /// show on the left
-                    mainWindow.x =  minDx;
-                    filteredQuaters = [0, 2];
-                }
-            } else if (isEqual(mainWindow.height, currentScreenHeight)) {
-                /// make vertical halve
-                mainWindow.height  = halfScreenHeight;
-                mainWindow.width = currentScreenWidth;
-                if (mainWindow.x !== minDx) mainWindow.x = minDx;
-                columnsCount = 3;
-                if (isEqual(lastActiveClient.y, minDy)) {
-                    /// show in bottom
-                    mainWindow.y = minDy + halfScreenHeight;
-                    filteredQuaters = [2, 3];
-
-                    /// special handling to show assist again for newly appeared free quater
-                    if (isEqual(lastActiveClient.x, minDx + halfScreenWidth))
-                        screenQuatersToShowNext[0] = {dx: minDx, dy: minDy, height: halfScreenHeight, width: halfScreenWidth};
-                    else if (isEqual(lastActiveClient.x, minDx))
-                        screenQuatersToShowNext[0] = {dx: minDx + halfScreenWidth, dy: minDy, height: halfScreenHeight, width: halfScreenWidth};
-                } else {
-                    /// show on top
-                    mainWindow.y = minDy;
-                    filteredQuaters = [0, 1];
-                }
-            } else {
-                /// return to initial position
-                mainWindow.width /= 2;
-                mainWindow.x = storedQuaterPosition.dx; mainWindow.y = storedQuaterPosition.dy;
-                columnsCount = 2;
-                filteredQuaters = [];
-                screenQuatersToShowNext[0] = storedFirstQuaterToShow;
-            }
-        } else if (layoutMode == 3) {
-            /// three-in-a-row layout
-
-            const thirdOfScreenWidth = currentScreenWidth / 3;
-
-            if (lastActiveClient.x == minDx + thirdOfScreenWidth) {
-                /// snapped window in the center
-                if (isEqual(mainWindow.x, minDx)) {
-                    /// move third to right
-                    mainWindow.x = minDx + (thirdOfScreenWidth * 2);
-                    filteredQuaters = [2];
-                    screenQuatersToShowNext[0] = {dx: minDx, dy: minDy, height: currentScreenHeight, width: thirdOfScreenWidth};
-                } else {
-                    /// move third to left
-                    mainWindow.x = minDx;
-                    filteredQuaters = [];
-                    delete screenQuatersToShowNext[0];
-                }
-            } else {
-                /// snapped window on the side
-                if (isEqual(mainWindow.width, thirdOfScreenWidth)) {
-                    /// expand to take two thirds
-                    storedQuaterPosition.dx = mainWindow.x;
-                    mainWindow.width = thirdOfScreenWidth * 2;
-                    columnsCount = 2;
-                    filteredQuaters = isEqual(mainWindow.x, minDx) ? [1] : [2];
-
-                } else if (isEqual(mainWindow.height, currentScreenHeight / 2)) {
-                    /// return to initial position
-                    mainWindow.width = thirdOfScreenWidth;
-                    mainWindow.height = currentScreenHeight;
-                    mainWindow.x = storedQuaterPosition.dx;
-                    columnsCount = 1;
-                    filteredQuaters = [];
-                   delete screenQuatersToShowNext[0];
-                }
-                  else if (isEqual(mainWindow.width, thirdOfScreenWidth * 2)) {
-                    /// show vertically
-                    mainWindow.height = currentScreenHeight / 2;
-                    filteredQuaters = [1, 2];
-                    screenQuatersToShowNext[0] = {dx: mainWindow.x, dy: minDy + (currentScreenHeight / 2), height: currentScreenHeight / 2, width: mainWindow.width};
-                  }
-            }
-        }
-    }
-
-    /// keyboard navigation
-    function selectClient(client){
-        client.setMaximize(false, false);
-        const clientGeometry = client.frameGeometry;
-        clientGeometry.x = mainWindow.x - (assistPadding / 2);
-        clientGeometry.y = mainWindow.y - (assistPadding / 2);
-        clientGeometry.width = mainWindow.width + assistPadding;
-        clientGeometry.height = mainWindow.height + assistPadding;
-        workspace.activeClient = client;
-        checkToShowNextQuaterAssist(client);
-    }
-
-    function moveFocusLeft() {
-        focusedIndex = focusedIndex - 1;
-        if (focusedIndex < 0) focusedIndex = cycleKeyboard ? clients.length - 1 : 0;
-        scrollItemIntoView(focusedIndex);
-    }
-
-    function moveFocusRight() {
-        focusedIndex = focusedIndex + 1;
-        const lastIndex = clients.length - 1;
-        if (focusedIndex > lastIndex) focusedIndex = cycleKeyboard ? 0 : lastIndex;
-        scrollItemIntoView(focusedIndex);
-    }
-
-    function moveFocusUp(){
-        if(focusedIndex - columnsCount >= 0) {
-           focusedIndex = focusedIndex - columnsCount;
-           scrollItemIntoView(focusedIndex);
-        }
-    }
-
-    function moveFocusDown(){
-        const clientsLen = clients.length;
-        if(focusedIndex + columnsCount < clients.length) {
-            focusedIndex = focusedIndex + columnsCount;
-            scrollItemIntoView(focusedIndex);
-        } else {
-            focusedIndex =  clients.length - 1;
-            scrollItemIntoView(focusedIndex);
-        }
-    }
-
-    function scrollItemIntoView(index) {
-        const dy = clientsRepeater.itemAt(index).y, viewHeight = mainWindow.height * 0.95;
-        const scrollStep = (cardHeight + gridSpacing)  / scrollView.contentHeight;
-        if (dy > viewHeight) scrollView.ScrollBar.vertical.position += scrollStep;
-        else if (dy < scrollView.ScrollBar.vertical.position) scrollView.ScrollBar.vertical.position -= scrollStep;
+        delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 100);
+        showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
+        minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
+        raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
+        fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
+        trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
     }
 }
