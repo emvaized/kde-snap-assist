@@ -20,7 +20,15 @@ function selectClient(client){
 /// listeners
 function addListenersToClient(client) {
     client.frameGeometryChanged.connect(function() {
-        if (!client.move && !client.resize && activated == false && preventFromShowing == false) onWindowResize(client);
+        if (!client.move && !client.resize && activated == false && preventFromShowing == false) {
+            if (delayBeforeShowingAssist == 0) {
+                onWindowResize(client);
+            } else {
+                timer.setTimeout(function(){
+                    onWindowResize(client);
+                }, delayBeforeShowingAssist);
+            }
+        } 
     });
 
     client.clientStartUserMovedResized.connect(function(cl){
