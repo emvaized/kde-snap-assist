@@ -28,11 +28,11 @@ function addListenersToClient(client) {
                     onWindowResize(client);
                 }, delayBeforeShowingAssist);
             }
-        } 
+        }
     });
 
     client.clientStartUserMovedResized.connect(function(cl){
-        if (trackSnappedWindows) removeWindowFromTrack(cl.windowId);
+        if (trackSnappedWindows && !client.resize) removeWindowFromTrack(cl.windowId);
     });
 
     client.windowClosed.connect(function(window){
