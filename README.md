@@ -39,19 +39,19 @@ In order to install this script manually from GitHub, you'd need to:
 
 #### Compatibility with [Window Gap](https://github.com/nclarius/tile-gaps)
 
-Since version 1.2, there's an option "Snap detect tolerance" in the script settings, which basically defines how much window's size and position can differ to still be detected as "snapped" by the script. If you use some external scripts which constantly modify windows size and position, you may want to set it to `15px` or `25px`, so that Snap Assist could detect your snaps.
+- Since version 1.2, there's an option "Snap detect tolerance" in the script settings, which basically defines how much window's size and position can differ to still be detected as "snapped" by the script. If you use some external scripts which constantly modify windows size and position, you may want to set it to `15px` or `25px`, so that Snap Assist could detect your snaps.
 
 #### Compatibility with [Exquisite](https://www.pling.com/p/1852610)
 
-Most of default layouts are supported out the box. You may also like to enable "Hide after tiling a window" in Exquisite's settings for the smoothest workflow. Over time, support for custom layouts will expand, possibly with ability to edit them.
+- Most of default layouts are supported out the box. You may also like to enable "Hide after tiling a window" in Exquisite's settings for the smoothest workflow. Over time, support for custom layouts will expand, possibly with ability to edit them.
 
 #### Compatibility with [Sticky Window Snapping](https://www.pling.com/p/1112552)
 
-Fully compatible. Highly recommended to be used in conjunction with Snap Assist.
+- Fully compatible. Highly recommended to be used in conjunction with Snap Assist!
 
 #### Compatibility with diagonal keyboard shortcuts
 
-Version 1.4 introduces an option "Delay before showing the assist", which gives some time to execute 'diagonal' shortcuts (`super` + `↑` + `→`) before Assist gets shown. The default value is `100ms`.
+- Version 1.4 introduces an option "Delay before showing the assist", which gives some time to execute 'diagonal' shortcuts (`super` + `↑` + `→`) before Assist gets shown. The default value is `100ms`.
 
 --- 
 
