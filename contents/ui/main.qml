@@ -348,6 +348,6 @@ Window {
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
         fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
-        trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose;
+        trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
     }
 }
