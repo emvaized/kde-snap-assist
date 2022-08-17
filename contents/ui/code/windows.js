@@ -1,3 +1,22 @@
+function selectClient(client){
+    client.setMaximize(false, false);
+    client.frameGeometry = Qt.rect(
+        mainWindow.x - (assistPadding / 2),
+        mainWindow.y - (assistPadding / 2),
+        mainWindow.width + assistPadding,
+        mainWindow.height + assistPadding
+    );
+
+    workspace.activeClient = client;
+
+    if (trackSnappedWindows) {
+        removeWindowFromTrack(client.windowId); /// remove from track if was previously snapped
+        snappedWindows.push(client.windowId);
+    }
+
+    AssistManager.checkToShowNextQuaterAssist(client);
+}
+
 /// listeners
 function addListenersToClient(client) {
     client.frameGeometryChanged.connect(function() {
@@ -212,23 +231,6 @@ function fillClosedWindow(closedWindow, group){
 }
 
 /// utility functions
-function selectClient(client){
-    client.setMaximize(false, false);
-    const clientGeometry = client.frameGeometry;
-    clientGeometry.x = mainWindow.x - (assistPadding / 2);
-    clientGeometry.y = mainWindow.y - (assistPadding / 2);
-    clientGeometry.width = mainWindow.width + assistPadding;
-    clientGeometry.height = mainWindow.height + assistPadding;
-    workspace.activeClient = client;
-
-    if (trackSnappedWindows) {
-        removeWindowFromTrack(client.windowId); /// remove from track if was previously snapped
-        snappedWindows.push(client.windowId);
-    }
-
-    AssistManager.checkToShowNextQuaterAssist(client);
-}
-
 function isEqual(a, b) {
     /// for compatibility with scripts like Window Gap
     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
