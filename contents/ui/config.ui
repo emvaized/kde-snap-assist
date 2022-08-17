@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>728</height>
+    <height>757</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -202,7 +202,7 @@
              </sizepolicy>
             </property>
             <property name="value">
-             <number>20</number>
+             <number>100</number>
             </property>
             <property name="minimum">
              <number>0</number>
@@ -211,7 +211,7 @@
              <number>10000</number>
             </property>
             <property name="singleStep">
-             <number>10</number>
+             <number>25</number>
             </property>
             <property name="suffix">
              <string>ms</string>

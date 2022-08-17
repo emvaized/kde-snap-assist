@@ -71,7 +71,7 @@
 		</entry>
 		<entry name="delayBeforeShowingAssist" type="int">
 			<label>Delay in ms before assist gets shown</label>
-			<default>20</default>
+			<default>100</default>
 		</entry>
     </group>
 </kcfg>
