@@ -1,5 +1,6 @@
 function selectClient(client){
     client.setMaximize(false, false);
+    client.shade = false;
     client.frameGeometry = Qt.rect(
         mainWindow.x - (assistPadding / 2),
         mainWindow.y - (assistPadding / 2),
