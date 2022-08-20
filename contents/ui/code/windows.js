@@ -42,7 +42,7 @@ function addListenersToClient(client) {
 }
 
 function onWindowResize(window) {
-    if (activated) AssistManager.hideAssist();
+    if (activated) return;
     AssistManager.finishSnap(false); /// make sure we cleared all variables
 
     const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
@@ -160,7 +160,7 @@ function handleWindowFocus(window) {
 
             for(let i = 0, l = windows.length; i < l; i++) {
                 if (windows[i] !== window.windowId) {
-                    const w = workspace.getClient(windows[i]);
+                    const w = getClientFromId(windows[i]);
                     if (w && !w.minimized) workspace.activeClient = w;
                 }
             }
@@ -193,7 +193,7 @@ function applyActionToAssosiatedSnapGroup(client, callback){
     const i = snappedWindowGroups.findIndex((group) => group.windows.includes(client.windowId));
     if (i > -1) {
         const windows = snappedWindowGroups[i].windows;
-        windows.forEach(windowId => callback(workspace.getClient(windowId)));
+        windows.forEach(windowId => callback(getClientFromId(windowId)));
     }
 }
 
@@ -219,7 +219,7 @@ function fillClosedWindow(closedWindow, group){
     const closedWindowGeom = closedWindow.frameGeometry;
     const remainingWindows = group.windows;
     for(let i = 0, l = remainingWindows.length; i < l; i++){
-        const window = workspace.getClient(remainingWindows[i]);
+        const window = getClientFromId(remainingWindows[i]);
         if (!window) continue;
         if (window.windowId == closedWindow.windowId) continue;
         const windowGeom = window.frameGeometry;
@@ -243,6 +243,13 @@ function fillClosedWindow(closedWindow, group){
 function isEqual(a, b) {
     /// for compatibility with scripts like Window Gap
     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
+}
+
+function getClientFromId(windowId){
+    return workspace.getClient(windowId);
+
+    /// Need to figure out reliable way for Wayland
+    /// return Object.values(workspace.clients).find((el, index, arr) => el.windowId == windowId);
 }
 
 function shouldShowWindow(client) {
