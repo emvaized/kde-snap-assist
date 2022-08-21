@@ -39,6 +39,10 @@ function addListenersToClient(client) {
     client.windowClosed.connect(function(window){
         handleWindowClose(client);
     });
+
+    client.desktopChanged.connect(function(){
+        if (trackSnappedWindows && !client.resize) removeWindowFromTrack(client.windowId);
+    });
 }
 
 function onWindowResize(window) {
