@@ -1,4 +1,4 @@
-# <sub><img src="https://github.com/emvaized/kde-snap-assist/blob/dev/assets/logo.png" height="48" width="48"></sub> KDE Snap Assist
+# <sub><img src="https://github.com/emvaized/kde-snap-assist/blob/main/assets/logo.png" height="48" width="48"></sub> KDE Snap Assist
 [KDE Store](https://store.kde.org/p/1875687)
 
 This KWin script for KDE Plasma suggests other window thumbnails on snap. It tries to replicate the famous Windows 10/11 feature of the same name.
