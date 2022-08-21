@@ -1,7 +1,7 @@
 1.5
 - Fixed unwanted assist show on Wayland
 - Windows now will get unshaded after selecting from assist
-- Assit will now try to filter out windows from other activities
+- Assist will now try to filter out windows from other activities
 - Increased default opacity for assist background
 - Updated configs page design and layout
 - Remove window from snap group when move it to another desktop
