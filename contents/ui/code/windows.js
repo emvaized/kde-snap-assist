@@ -259,6 +259,7 @@ function shouldShowWindow(client) {
     if (!showOtherScreensWindows && client.screen !== workspace.activeScreen) return false;
     if (!showOtherDesktopsWindows && client.desktop !== workspace.currentDesktop) return false;
     if (!showSnappedWindows && snappedWindowGroups.findIndex(group => group.windows.includes(client.windowId)) > -1) return false;
+    if (client.activities.length > 0 && !client.activities.includes(workspace.currentActivity)) return false;
     return true;
 }
 
