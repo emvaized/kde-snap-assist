@@ -102,7 +102,7 @@ Window {
         }
         function onVirtualScreenSizeChanged(){
             /// Fix for assist getting shown when screen size changed
-            AssistManager.preventAssistFromShowing(1000, () => hideAssist(false));
+            AssistManager.preventAssistFromShowing(1000, () => AssistManager.hideAssist(false));
         }
     }
 
