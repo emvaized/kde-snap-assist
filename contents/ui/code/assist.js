@@ -88,6 +88,7 @@ function checkToShowNextQuaterAssist(lastSelectedClient){
     } else {
         /// no other quaters to show assist — we can reset the variables
         finishSnap(true);
+        preventAssistFromShowing();
         return false;
     }
 }

@@ -102,7 +102,7 @@ Window {
         }
         function onVirtualScreenSizeChanged(){
             /// Fix for assist getting shown when screen size changed
-            AssistManager.preventAssistFromShowing(1000, () => hideAssist(false));
+            AssistManager.preventAssistFromShowing(1000, () => AssistManager.hideAssist(false));
         }
     }
 
@@ -339,7 +339,7 @@ Window {
         textColor = KWin.readConfig("textColor", "#ffffff");
         cardColor = KWin.readConfig("cardColor", "#75475057");
         hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
-        backdropColor = KWin.readConfig("backdropColor", "#502a2e32");
+        backdropColor = KWin.readConfig("backdropColor", "#992a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
