@@ -619,6 +619,12 @@
            </item>
            <item>
             <widget class="QLabel" name="label">
+             <property name="cursor">
+              <cursorShape>WhatsThisCursor</cursorShape>
+             </property>
+             <property name="toolTip">
+              <string>Delay is useful for compatibility with &quot;diagonal&quot; keyboard shortcuts, such as &quot;super + ↑ + →&quot;</string>
+             </property>
              <property name="text">
               <string>Delay before showing the assist</string>
              </property>
