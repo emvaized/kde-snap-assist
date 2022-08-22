@@ -536,6 +536,16 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
+          <widget class="QCheckBox" name="kcfg_rememberWindowSizes">
+           <property name="text">
+            <string>Remember window size, and restore it on un-snap</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
             <widget class="KIntNumInput" name="kcfg_snapDetectPrecision">
@@ -709,7 +719,7 @@
             <cursorShape>WhatsThisCursor</cursorShape>
            </property>
            <property name="toolTip">
-            <string>Requires &quot;Raise snapped window together&quot; enabled</string>
+            <string>When there's active snap group behind the window, try to fit newly snapped window in it. Requires &quot;Raise snapped window together&quot; enabled</string>
            </property>
            <property name="text">
             <string>Try to fit snapped window in group behind it</string>

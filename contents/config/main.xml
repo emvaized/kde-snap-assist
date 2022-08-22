@@ -29,6 +29,10 @@
 			<label>Sort windows in descending order (newest > oldest)</label>
 		  <default>true</default>
 		</entry>
+		<entry name="rememberWindowSizes" type="bool">
+			<label>Remember window size to restore it on un-snap</label>
+		  <default>true</default>
+		</entry>
 		<entry name="minimizeSnappedTogether" type="bool">
 			<label>Minimize/restore snapped windows together</label>
 		  <default>false</default>

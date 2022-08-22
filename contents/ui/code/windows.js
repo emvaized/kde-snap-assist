@@ -1,6 +1,9 @@
 function selectClient(client){
     client.setMaximize(false, false);
     client.shade = false;
+
+    if (rememberWindowSizes) windowSizesBeforeSnap[client.windowId] = { height: client.height, width: client.width };
+
     client.frameGeometry = Qt.rect(
         mainWindow.x - (assistPadding / 2),
         mainWindow.y - (assistPadding / 2),
@@ -37,6 +40,15 @@ function addListenersToClient(client) {
             removeWindowFromTrack(cl.windowId, function(group){
                 if (fillOnSnappedMove) fillClosedWindow(cl, group);
             });
+        }
+
+        if (rememberWindowSizes){
+            const storedSize = windowSizesBeforeSnap[cl.windowId];
+            if (storedSize) {
+                cl.frameGeometry.height = windowSizesBeforeSnap[cl.windowId].height;
+                cl.frameGeometry.width = windowSizesBeforeSnap[cl.windowId].width;
+                delete windowSizesBeforeSnap[cl.windowId];
+            }
         }
     });
 
@@ -184,8 +196,9 @@ function handleWindowFocus(window) {
 
 function handleWindowClose(window){
     if (sortByLastActive) delete activationTime[window.windowId];
+    if (rememberWindowSizes) delete windowSizesBeforeSnap[window.windowId];
 
-        if (trackSnappedWindows) {
+    if (trackSnappedWindows) {
         /// remove window if it was snapped
         removeWindowFromTrack(window.windowId, function(group){
             /// callback when snapped window was closed.

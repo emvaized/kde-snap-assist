@@ -34,6 +34,7 @@ Window {
     property var lastActiveClient: null /// last active client to focus if cancelled
     property int focusedIndex: 0 /// selection by keyboard
     property var activationTime: ({}) /// store timestamps of last window's activation
+    property var windowSizesBeforeSnap: ({}) /// store widnow sizes before they were snapped via script (when rememberWindowSizes is on)
     property int cardHeight: 220 /// calculated dynamically before assist reveal
     property int cardWidth: 370
     property int columnsCount: 2 /// calculated depending on available width
@@ -80,6 +81,7 @@ Window {
     property bool fillOnSnappedClose
     property bool fillOnSnappedMove
     property int fitWindowInGroupBehind
+    property bool rememberWindowSizes
 
     Connections {
         target: workspace
@@ -346,6 +348,7 @@ Window {
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
         delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 100);
+        rememberWindowSizes = KWin.readConfig("rememberWindowSizes", true);
         showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
