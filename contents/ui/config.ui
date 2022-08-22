@@ -143,10 +143,10 @@
            <item>
             <widget class="QCheckBox" name="kcfg_showSnappedWindows">
              <property name="cursor">
-              <cursorShape>ArrowCursor</cursorShape>
+              <cursorShape>WhatsThisCursor</cursorShape>
              </property>
              <property name="toolTip">
-              <string/>
+              <string>Most likely will have no effect on Wayland</string>
              </property>
              <property name="text">
               <string>Show previously snapped windows</string>
