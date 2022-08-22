@@ -517,7 +517,7 @@
       <bool>true</bool>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
+      <item alignment="Qt::AlignTop">
        <widget class="QGroupBox" name="compatibility">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -693,6 +693,26 @@
           <widget class="QCheckBox" name="kcfg_fillOnSnappedClose">
            <property name="text">
             <string>On close snapped window, try to fill the area</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="kcfg_fillOnSnappedMove">
+           <property name="text">
+            <string>On move snapped window, try to fill the area</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="kcfg_fitWindowInGroupBehind">
+           <property name="cursor">
+            <cursorShape>WhatsThisCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Requires &quot;Raise snapped window together&quot; enabled</string>
+           </property>
+           <property name="text">
+            <string>Try to fit snapped window in group behind it</string>
            </property>
           </widget>
          </item>

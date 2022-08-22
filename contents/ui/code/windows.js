@@ -33,7 +33,11 @@ function addListenersToClient(client) {
     });
 
     client.clientStartUserMovedResized.connect(function(cl){
-        if (trackSnappedWindows && !client.resize) removeWindowFromTrack(cl.windowId);
+        if (trackSnappedWindows && !client.resize) {
+            removeWindowFromTrack(cl.windowId, function(group){
+                if (fillOnSnappedMove) fillClosedWindow(cl, group);
+            });
+        }
     });
 
     client.windowClosed.connect(function(window){
@@ -48,6 +52,9 @@ function addListenersToClient(client) {
 function onWindowResize(window) {
     if (activated) return;
     AssistManager.finishSnap(false); /// make sure we cleared all variables
+
+    /// don't show assist if window could be fit in the group behind
+    if (fitWindowInGroupBehind && windowFitsInSnapGroup(window)) return;
 
     const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
     currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
@@ -150,10 +157,8 @@ function handleWindowFocus(window) {
     if (activated) AssistManager.hideAssist(false);
 
     /// Store timestamp of last window activation
-    if (sortByLastActive) {
-        const d = new Date();
-        activationTime[window.windowId] = d.getTime();
-    }
+    const d = new Date();
+    activationTime[window.windowId] = d.getTime();
 
     /// Raise all snapped windows together
     if (trackSnappedWindows && raiseSnappedTogether && !activated) {
@@ -242,6 +247,65 @@ function fillClosedWindow(closedWindow, group){
         }
     }
 }
+
+function windowFitsInSnapGroup(client){
+    /// requires track activation time and raise snapped windows together
+
+    /// find last active client
+    let lastActiveWindowId = -1, lastActiveTime = -1;
+    Object.keys(activationTime).forEach(function(key) {
+        if(activationTime[key] > lastActiveTime && key != client.windowId ) {
+            const c = getClientFromId(key);
+            if (c && !c.minimized) {
+                lastActiveWindowId = parseInt(key);
+                lastActiveTime = activationTime[key];
+            }
+        }
+    } );
+
+    if (lastActiveWindowId < 0) return false;
+
+    /// find if it belongs to snap group
+    const indexOfGroup = snappedWindowGroups.findIndex((group) => group.windows.includes(lastActiveWindowId));
+    if (indexOfGroup < 0) return false;
+
+    /// check rest of windows in that group
+    const snappedWindows = snappedWindowGroups[indexOfGroup].windows;
+
+    for (let i = 0, l = snappedWindows.length; i < l; i++) {
+        const w = getClientFromId(snappedWindows[i]);
+        if (!w) continue;
+
+         if (w.y == client.y && w.height == client.height && w.width > client.width) {
+            /// reduce window horizontally to fit new window in layout
+            snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
+            AssistManager.preventAssistFromShowing();
+            w.frameGeometry.width = client.width;
+            if (w.x == client.x) w.frameGeometry.x += w.height;
+            return true;
+
+        }	else if (w.x == client.x && w.width == client.width && w.height > client.height) {
+             /// reduce window vertically to fit new window in layout
+            snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
+            AssistManager.preventAssistFromShowing();
+            w.frameGeometry.height = client.height;
+            if (w.y == client.y) w.frameGeometry.y += w.height;
+            return true;
+        }
+        else if ( (w.x == client.x || client.x + client.width >= w.x + w.width) && (w.y == client.y || client.y + client.height >= w.y + w.height)) {
+            if ( (w.height == client.height && (w.width == client.width || w.width < client.width)) ||
+                (w.width == client.width && w.height < client.height) ) {
+                /// replace window in group with newly snapped window
+                snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
+                removeWindowFromTrack(w.windowId);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 
 /// utility functions
 function isEqual(a, b) {

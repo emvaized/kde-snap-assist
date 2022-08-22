@@ -73,11 +73,13 @@ Window {
     property bool showOtherDesktopsWindows
     property bool descendingOrder
     property int snapDetectPrecision
+    property int delayBeforeShowingAssist
     property bool showSnappedWindows
     property bool minimizeSnappedTogether
     property bool raiseSnappedTogether
     property bool fillOnSnappedClose
-    property int delayBeforeShowingAssist
+    property bool fillOnSnappedMove
+    property int fitWindowInGroupBehind
 
     Connections {
         target: workspace
@@ -348,6 +350,8 @@ Window {
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
         fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
+        fillOnSnappedMove = KWin.readConfig("fillOnSnappedMove", false);
+        fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
     }
 }
