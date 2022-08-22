@@ -219,7 +219,7 @@ function removeWindowFromTrack(windowId, callback){
     if (i > -1) {
         snappedWindowGroups[i].windows.splice(i2, 1);
         if (callback) callback(snappedWindowGroups[i]);
-        if (snappedWindowGroups[i].windows.length < 2) snappedWindowGroups.splice(i, 1);
+        if (snappedWindowGroups[i].windows.length < 1) snappedWindowGroups.splice(i, 1);
     }
 }
 
@@ -261,8 +261,7 @@ function windowFitsInSnapGroup(client){
                 lastActiveTime = activationTime[key];
             }
         }
-    } );
-
+    });
     if (lastActiveWindowId < 0) return false;
 
     /// find if it belongs to snap group
@@ -276,24 +275,24 @@ function windowFitsInSnapGroup(client){
         const w = getClientFromId(snappedWindows[i]);
         if (!w) continue;
 
-         if (w.y == client.y && w.height == client.height && w.width > client.width) {
+        if (w.y == client.y && w.height == client.height && w.width > client.width) {
             /// reduce window horizontally to fit new window in layout
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
-            w.frameGeometry.width = client.width;
+            w.frameGeometry.width -= client.width;
             if (w.x == client.x) w.frameGeometry.x += w.height;
             return true;
 
-        }	else if (w.x == client.x && w.width == client.width && w.height > client.height) {
+        } else if (w.x == client.x && w.width == client.width && w.height > client.height) {
              /// reduce window vertically to fit new window in layout
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
-            w.frameGeometry.height = client.height;
+            w.frameGeometry.height -= client.height;
             if (w.y == client.y) w.frameGeometry.y += w.height;
             return true;
-        }
-        else if ( (w.x == client.x || client.x + client.width >= w.x + w.width) && (w.y == client.y || client.y + client.height >= w.y + w.height)) {
-            if ( (w.height == client.height && (w.width == client.width || w.width < client.width)) ||
+
+        } else if ( (w.x == client.x || client.x + client.width >= w.x + w.width) && (w.y == client.y || client.y + client.height >= w.y + w.height)) {
+            if ((w.height == client.height && (w.width == client.width || w.width < client.width)) ||
                 (w.width == client.width && w.height < client.height) ) {
                 /// replace window in group with newly snapped window
                 snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
@@ -326,7 +325,7 @@ function shouldShowWindow(client) {
     if (!showMinimizedWindows && client.minimized) return false;
     if (!showOtherScreensWindows && client.screen !== workspace.activeScreen) return false;
     if (!showOtherDesktopsWindows && client.desktop !== workspace.currentDesktop) return false;
-    if (!showSnappedWindows && snappedWindowGroups.findIndex(group => group.windows.includes(client.windowId)) > -1) return false;
+    if (!showSnappedWindows && snappedWindowGroups.findIndex(group => group.windows.includes(client.windowId) && group.windows.length > 1) > -1) return false;
     if (client.activities.length > 0 && !client.activities.includes(workspace.currentActivity)) return false;
     return true;
 }
