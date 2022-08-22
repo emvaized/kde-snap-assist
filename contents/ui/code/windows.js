@@ -45,8 +45,8 @@ function addListenersToClient(client) {
         if (rememberWindowSizes){
             const storedSize = windowSizesBeforeSnap[cl.windowId];
             if (storedSize) {
-                cl.frameGeometry.height = windowSizesBeforeSnap[cl.windowId].height;
-                cl.frameGeometry.width = windowSizesBeforeSnap[cl.windowId].width;
+                cl.frameGeometry.height = windowSizesBeforeSnap[cl.windowId].height ?? cl.height;
+                cl.frameGeometry.width = windowSizesBeforeSnap[cl.windowId].width ?? cl.width;
                 delete windowSizesBeforeSnap[cl.windowId];
             }
         }
@@ -268,11 +268,12 @@ function fillClosedWindow(closedWindow, group){
 
 function windowFitsInSnapGroup(client){
     /// requires track activation time and raise snapped windows together
-
+    
     /// find last active client
     let lastActiveWindowId = -1, lastActiveTime = -1;
+    const activeClientId = workspace.activeClient.windowId;
     Object.keys(activationTime).forEach(function(key) {
-        if(activationTime[key] > lastActiveTime && key != client.windowId ) {
+        if(activationTime[key] > lastActiveTime && key != client.windowId && key != activeClientId) {
             const c = getClientFromId(key);
             if (c && !c.minimized) {
                 lastActiveWindowId = parseInt(key);
@@ -298,7 +299,7 @@ function windowFitsInSnapGroup(client){
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
             w.frameGeometry.width -= client.width;
-            if (w.x == client.x) w.frameGeometry.x += w.width;
+            if (w.x == client.x) w.frameGeometry.x += client.width;
             return true;
 
         } else if (w.x == client.x && w.width == client.width && w.height > client.height) {
@@ -306,7 +307,7 @@ function windowFitsInSnapGroup(client){
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
             w.frameGeometry.height -= client.height;
-            if (w.y == client.y) w.frameGeometry.y += w.height;
+            if (w.y == client.y) w.frameGeometry.y += client.height;
             return true;
 
         } else if ( (w.x == client.x || client.x + client.width >= w.x + w.width) && (w.y == client.y || client.y + client.height >= w.y + w.height)) {
