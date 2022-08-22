@@ -87,6 +87,7 @@ function onWindowResize(window) {
         }
         columnsCount = 2;
         layoutMode = 0;
+        filteredClients.push(window);
 
     /// top/bottom halves
     } else if (isEqual(width, currentScreenWidth) && isEqual(height, halfScreenHeight) && isEqual(dx, minDx)) {
@@ -99,6 +100,7 @@ function onWindowResize(window) {
         }
         columnsCount = 3;
         layoutMode = 2;
+        filteredClients.push(window);
     }
 
     /// quater tiling
