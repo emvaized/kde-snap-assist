@@ -162,6 +162,9 @@ function onWindowResize(window) {
             columnsCount = 1;
         }
     }
+
+    /// if only one window available, show it in center
+    if (clients.length == 1) columnsCount = 1;
 }
 
 function handleWindowFocus(window) {
