@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>868</width>
-    <height>568</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -212,14 +212,14 @@
                 <string/>
                </property>
                <property name="color">
-                <color alpha="125">
+                <color alpha="90">
                  <red>42</red>
                  <green>46</green>
                  <blue>50</blue>
                 </color>
                </property>
                <property name="defaultColor">
-                <color alpha="125">
+                <color alpha="90">
                  <red>42</red>
                  <green>46</green>
                  <blue>50</blue>

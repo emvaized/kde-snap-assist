@@ -59,7 +59,7 @@
 		</entry>
 		<entry name="backdropColor" type="string">
 			<label>Background color</label>
-		  <default>#502a2e32</default>
+		  <default>#902a2e32</default>
 		</entry>
 		<entry name="textColor" type="string">
 			<label>Text color for cards</label>
