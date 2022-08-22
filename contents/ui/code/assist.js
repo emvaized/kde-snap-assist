@@ -68,6 +68,7 @@ function finishSnap(success){
     filteredQuaters = [];
     snappedWindows = [];
     quatersToShowNext = {};
+    lastActiveClient = null;
 }
 
 
@@ -192,7 +193,6 @@ function switchAssistLayout() {
         }
     } else if (layoutMode == 3) {
         /// three-in-a-row layout
-
         const thirdOfScreenWidth = currentScreenWidth / 3;
 
         if (lastActiveClient.x == minDx + thirdOfScreenWidth) {
