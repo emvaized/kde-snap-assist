@@ -280,7 +280,7 @@ function windowFitsInSnapGroup(client){
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
             w.frameGeometry.width -= client.width;
-            if (w.x == client.x) w.frameGeometry.x += w.height;
+            if (w.x == client.x) w.frameGeometry.x += w.width;
             return true;
 
         } else if (w.x == client.x && w.width == client.width && w.height > client.height) {
