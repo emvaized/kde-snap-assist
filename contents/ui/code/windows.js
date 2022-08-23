@@ -2,7 +2,8 @@ function selectClient(client){
     client.setMaximize(false, false);
     client.shade = false;
 
-    if (rememberWindowSizes) windowSizesBeforeSnap[client.windowId] = { height: client.height, width: client.width };
+    if (rememberWindowSizes)
+        windowSizesBeforeSnap[client.windowId] = { height: client.height, width: client.width };
 
     client.frameGeometry = Qt.rect(
         mainWindow.x - (assistPadding / 2),
@@ -36,11 +37,10 @@ function addListenersToClient(client) {
     });
 
     client.clientStartUserMovedResized.connect(function(cl){
-        if (trackSnappedWindows && !client.resize) {
+        if (trackSnappedWindows && !client.resize)
             removeWindowFromTrack(cl.windowId, function(group){
                 if (fillOnSnappedMove) fillClosedWindow(cl, group);
             });
-        }
 
         if (rememberWindowSizes){
             const storedSize = windowSizesBeforeSnap[cl.windowId];
@@ -183,8 +183,10 @@ function handleWindowFocus(window) {
         if (i > -1) {
             ignoreFocusChange = true;
             const windows = snappedWindowGroups[i].windows;
+            const l = windows.length;
+            if (l < 2) return;
 
-            for(let i = 0, l = windows.length; i < l; i++) {
+            for(let i = 0; i < l; i++) {
                 if (windows[i] !== window.windowId) {
                     const w = getClientFromId(windows[i]);
                     if (w && !w.minimized) workspace.activeClient = w;
@@ -268,14 +270,14 @@ function fillClosedWindow(closedWindow, group){
 
 function windowFitsInSnapGroup(client){
     /// requires track activation time and raise snapped windows together
-    
+
     /// find last active client
     let lastActiveWindowId = -1, lastActiveTime = -1;
     const activeClientId = workspace.activeClient.windowId;
     Object.keys(activationTime).forEach(function(key) {
         if(activationTime[key] > lastActiveTime && key != client.windowId && key != activeClientId) {
             const c = getClientFromId(key);
-            if (c && !c.minimized) {
+            if (c && !c.minimized && c.screen == workspace.activeScreen && c.desktop == workspace.currentDesktop) {
                 lastActiveWindowId = parseInt(key);
                 lastActiveTime = activationTime[key];
             }
@@ -295,7 +297,7 @@ function windowFitsInSnapGroup(client){
         if (!w) continue;
 
         if (w.y == client.y && w.height == client.height && w.width > client.width) {
-            /// reduce window horizontally to fit new window in layout
+            /// reduce window width to fit new window in layout
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
             w.frameGeometry.width -= client.width;
@@ -303,21 +305,18 @@ function windowFitsInSnapGroup(client){
             return true;
 
         } else if (w.x == client.x && w.width == client.width && w.height > client.height) {
-             /// reduce window vertically to fit new window in layout
+             /// reduce window height to fit new window in layout
             snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
             AssistManager.preventAssistFromShowing();
             w.frameGeometry.height -= client.height;
             if (w.y == client.y) w.frameGeometry.y += client.height;
             return true;
 
-        } else if ( (w.x == client.x || client.x + client.width >= w.x + w.width) && (w.y == client.y || client.y + client.height >= w.y + w.height)) {
-            if ((w.height == client.height && (w.width == client.width || w.width < client.width)) ||
-                (w.width == client.width && w.height < client.height) ) {
-                /// replace window in group with newly snapped window
-                snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
-                removeWindowFromTrack(w.windowId);
-                return true;
-            }
+        } else if (w.x == client.x && w.y == client.y && w.height == client.height && w.width == client.width) {
+            /// replace window in group with newly snapped window
+            snappedWindowGroups[indexOfGroup].windows.splice(i, 1);
+            snappedWindowGroups[indexOfGroup].windows.push(client.windowId);
+            return true;
         }
     }
 
