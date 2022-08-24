@@ -33,6 +33,7 @@ Window {
     property var clients: null
     property var lastActiveClient: null /// last active client to focus if cancelled
     property int focusedIndex: 0 /// selection by keyboard
+    property bool trackActiveWindows: true
     property var activationTime: ({}) /// store timestamps of last window's activation
     property var windowSizesBeforeSnap: ({}) /// store widnow sizes before they were snapped via script (when rememberWindowSizes is on)
     property int cardHeight: 220 /// calculated dynamically before assist reveal
@@ -356,5 +357,6 @@ Window {
         fillOnSnappedMove = KWin.readConfig("fillOnSnappedMove", false);
         fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
+        trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
     }
 }

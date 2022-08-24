@@ -174,8 +174,10 @@ function handleWindowFocus(window) {
     if (activated) AssistManager.hideAssist(false);
 
     /// Store timestamp of last window activation
-    const d = new Date();
-    activationTime[window.windowId] = d.getTime();
+    if (trackActiveWindows) {
+        const d = new Date();
+        activationTime[window.windowId] = d.getTime();
+    }
 
     /// Raise all snapped windows together
     if (trackSnappedWindows && raiseSnappedTogether && !activated) {
@@ -202,7 +204,7 @@ function handleWindowFocus(window) {
 }
 
 function handleWindowClose(window){
-    if (sortByLastActive) delete activationTime[window.windowId];
+    if (trackActiveWindows) delete activationTime[window.windowId];
     if (rememberWindowSizes) delete windowSizesBeforeSnap[window.windowId];
 
     if (trackSnappedWindows) {
@@ -270,7 +272,7 @@ function fillClosedWindow(closedWindow, group){
 
 function windowFitsInSnapGroup(client){
     /// requires track activation time and raise snapped windows together
-
+    
     /// find last active client
     let lastActiveWindowId = -1, lastActiveTime = -1;
     const activeClientId = workspace.activeClient.windowId;
