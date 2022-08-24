@@ -103,7 +103,15 @@ Window {
         }
         function onClientUnminimized(client){
             if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl) { if (cl) cl.minimized = false; });
+            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl) {
+                if (cl) {
+                    cl.minimized = false;
+                    if (trackActiveWindows) {
+                        const d = new Date();
+                        activationTime[cl.windowId] = d.getTime();
+                    }
+                }
+            });
         }
         function onVirtualScreenSizeChanged(){
             /// Fix for assist getting shown when screen size changed
