@@ -166,7 +166,7 @@ function onWindowResize(window) {
     }
 
     /// if only one window available, show it in center
-    if (clients.length == 1) columnsCount = 1;
+    if (clients && clients.length == 1) columnsCount = 1;
 }
 
 function handleWindowFocus(window) {
@@ -246,7 +246,7 @@ function removeWindowFromTrack(windowId, callback){
 }
 
 function fillClosedWindow(closedWindow, group){
-    /// fill the free area when snapped window closed
+    /// fill the free area when snapped window closed or moved
     const closedWindowGeom = closedWindow.frameGeometry;
     const remainingWindows = group.windows;
     for(let i = 0, l = remainingWindows.length; i < l; i++){
@@ -259,11 +259,13 @@ function fillClosedWindow(closedWindow, group){
         if (windowGeom.x == closedWindowGeom.x && windowGeom.width == closedWindowGeom.width){
             AssistManager.preventAssistFromShowing();
             windowGeom.height += closedWindowGeom.height;
+            if (windowGeom.height > currentScreenHeight) windowGeom.height = currentScreenHeight;
             if(windowGeom.y > closedWindowGeom.y) windowGeom.y -= closedWindowGeom.height;
             break;
         } else if(windowGeom.y == closedWindowGeom.y && windowGeom.height == closedWindowGeom.height) {
             AssistManager.preventAssistFromShowing();
             windowGeom.width += closedWindowGeom.width;
+            if (windowGeom.width > currentScreenWidth) windowGeom.width = currentScreenWidth;
             if (windowGeom.x > closedWindowGeom.x) windowGeom.x -= closedWindowGeom.width;
             break;
         }
@@ -271,8 +273,9 @@ function fillClosedWindow(closedWindow, group){
 }
 
 function windowFitsInSnapGroup(client){
+    /// determines if newly snapped window could be fit in group behind it
     /// requires track activation time and raise snapped windows together
-    
+
     /// find last active client
     let lastActiveWindowId = -1, lastActiveTime = -1;
     const activeClientId = workspace.activeClient.windowId;
@@ -336,7 +339,7 @@ function getClientFromId(windowId){
     return workspace.getClient(windowId);
 
     /// Need to figure out reliable way for Wayland
-    /// return Object.values(workspace.clients).find((el, index, arr) => el.windowId == windowId);
+    /// return Object.values(workspace.clients).find((el, index, arr) => el.windowId == windowId); /// doesnt work
 }
 
 function shouldShowWindow(client) {
