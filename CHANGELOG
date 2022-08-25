@@ -1,3 +1,10 @@
+1.6
+- New option "Remember window sizes, and restore it on un-snap" for windows snapped with the script
+- New snap group option "On move snapped window, try to fill the area"
+- New snap group option "Try to fit snapped window in group behind it"
+- If only one window is available, show it in center
+- Small bug fixes and improvements
+
 1.5
 - Fixed unwanted assist show on Wayland
 - Windows now will get unshaded after selecting from assist
