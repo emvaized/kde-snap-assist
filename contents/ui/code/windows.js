@@ -190,6 +190,7 @@ function onWindowResize(window) {
 function handleWindowFocus(window) {
     if (ignoreFocusChange) return;
     if (activated) AssistManager.hideAssist(false);
+    if (!window || window.specialWindow) return;
 
     /// Store timestamp of last window activation
     if (trackActiveWindows) {
@@ -222,6 +223,7 @@ function handleWindowFocus(window) {
 }
 
 function handleWindowClose(window){
+    if (!window || window.specialWindow) return;
     if (trackActiveWindows) delete activationTime[window.internalId];
     if (rememberWindowSizes) delete windowSizesBeforeSnap[window.internalId];
 
