@@ -12,7 +12,7 @@ function delayedShowAssist(dx, dy, height, width, window){
 
     timer.setTimeout(function(){
         const w = window ?? workspace.activeClient;
-        if (w && w.windowId) snappedWindows.push(w.windowId);
+        if (w && w.internalId) snappedWindows.push(w.internalId);
         mainWindow.requestActivate();
         keyboardHandler.forceActiveFocus();
         showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);

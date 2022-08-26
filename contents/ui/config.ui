@@ -146,7 +146,7 @@
               <cursorShape>WhatsThisCursor</cursorShape>
              </property>
              <property name="toolTip">
-              <string>Most likely will have no effect on Wayland</string>
+              <string/>
              </property>
              <property name="text">
               <string>Show previously snapped windows</string>
@@ -670,7 +670,7 @@
          <cursorShape>ArrowCursor</cursorShape>
         </property>
         <property name="title">
-         <string>Snap groups (only for X11)</string>
+         <string>Snap groups</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
