@@ -2,6 +2,7 @@
 - New option "Remember window sizes, and restore it on un-snap" for windows snapped with the script
 - New snap group option "On move snapped window, try to fill the area"
 - New snap group option "Try to fit snapped window in group behind it"
+- Wayland support for snap groups features and sorting windows by last activation time
 - If only one window is available, show it in center
 - Small bug fixes and improvements
 
