@@ -3,9 +3,6 @@ function delayedShowAssist(dx, dy, height, width, window){
     clients = Object.values(workspace.clients).filter(c => WindowManager.shouldShowWindow(c));
     if (clients.length == 0) return;
 
-    if (sortByLastActive) WindowManager.sortClientsByLastActive();
-    if (descendingOrder) clients = clients.reverse();
-
     cardWidth = currentScreenWidth / 5;
     cardHeight = cardWidth / 1.68;
     lastActiveClient = workspace.activeClient;
@@ -17,6 +14,9 @@ function delayedShowAssist(dx, dy, height, width, window){
         keyboardHandler.forceActiveFocus();
         showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);
     }, 3);
+
+    if (sortByLastActive) WindowManager.sortClientsByLastActive();
+    if (descendingOrder) clients = clients.reverse();
 }
 
 function showAssist(dx, dy, height, width) {
