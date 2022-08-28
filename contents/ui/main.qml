@@ -333,10 +333,10 @@ Window {
         showMinimizedWindows = KWin.readConfig("showMinimizedWindows", true);
         showOtherScreensWindows = KWin.readConfig("showOtherScreensWindows", false);
         showOtherDesktopsWindows = KWin.readConfig("showOtherDesktopsWindows", false);
-        textColor = KWin.readConfig("textColor", "#ffffff") ?? "#ffffff";
-        cardColor = KWin.readConfig("cardColor", "#75475057") ?? "#75475057";
-        hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1") ?? "#75d9dde1";
-        backdropColor = KWin.readConfig("backdropColor", "#902a2e32") ?? "#902a2e32";
+        textColor = KWin.readConfig("textColor", "#ffffff");
+        cardColor = KWin.readConfig("cardColor", "#75475057");
+        hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
+        backdropColor = KWin.readConfig("backdropColor", "#902a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
@@ -350,5 +350,11 @@ Window {
         fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
         trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
+
+        /// workaround for configs bug, when boolean gets stored for string values
+        if (textColor == false) textColor = "#ffffff";
+        if (cardColor == false) cardColor = "#75475057";
+        if (hoveredCardColor == false) hoveredCardColor = "#75d9dde1";
+        if (backdropColor == false) backdropColor = "#902a2e32";
     }
 }
