@@ -183,8 +183,12 @@ function onWindowResize(window) {
         }
     }
 
-    /// if only one window available, show it in center
-    if (clients && clients.length == 1) columnsCount = 1;
+    /// if only one window available, show it in center and bigger
+    if (clients && clients.length == 1) {
+        columnsCount = 1;
+        cardWidth *= 1.2;
+        cardHeight *= 1.2;
+    }
 }
 
 function handleWindowFocus(window) {
