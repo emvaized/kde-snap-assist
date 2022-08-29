@@ -3,20 +3,20 @@ function delayedShowAssist(dx, dy, height, width, window){
     clients = Object.values(workspace.clients).filter(c => WindowManager.shouldShowWindow(c));
     if (clients.length == 0) return;
 
-    if (sortByLastActive) WindowManager.sortClientsByLastActive();
-    if (descendingOrder) clients = clients.reverse();
-
     cardWidth = currentScreenWidth / 5;
     cardHeight = cardWidth / 1.68;
     lastActiveClient = workspace.activeClient;
 
     timer.setTimeout(function(){
         const w = window ?? workspace.activeClient;
-        if (w && w.windowId) snappedWindows.push(w.windowId);
+        if (w && w.internalId) snappedWindows.push(w.internalId);
         mainWindow.requestActivate();
         keyboardHandler.forceActiveFocus();
         showAssist(dx, dy, height ?? currentScreenHeight, width ?? currentScreenWidth - window.width);
     }, 3);
+
+    if (sortByLastActive) WindowManager.sortClientsByLastActive();
+    if (descendingOrder) clients = clients.reverse();
 }
 
 function showAssist(dx, dy, height, width) {
@@ -68,6 +68,7 @@ function finishSnap(success){
     filteredQuaters = [];
     snappedWindows = [];
     quatersToShowNext = {};
+    lastActiveClient = null;
 }
 
 
@@ -87,8 +88,9 @@ function checkToShowNextQuaterAssist(lastSelectedClient){
         return true;
     } else {
         /// no other quaters to show assist — we can reset the variables
-        finishSnap(true);
         preventAssistFromShowing();
+        hideAssist(false);
+        finishSnap(true);
         return false;
     }
 }
@@ -192,7 +194,6 @@ function switchAssistLayout() {
         }
     } else if (layoutMode == 3) {
         /// three-in-a-row layout
-
         const thirdOfScreenWidth = currentScreenWidth / 3;
 
         if (lastActiveClient.x == minDx + thirdOfScreenWidth) {

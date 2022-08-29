@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>868</width>
-    <height>568</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -143,7 +143,7 @@
            <item>
             <widget class="QCheckBox" name="kcfg_showSnappedWindows">
              <property name="cursor">
-              <cursorShape>ArrowCursor</cursorShape>
+              <cursorShape>WhatsThisCursor</cursorShape>
              </property>
              <property name="toolTip">
               <string/>
@@ -212,14 +212,14 @@
                 <string/>
                </property>
                <property name="color">
-                <color alpha="125">
+                <color alpha="90">
                  <red>42</red>
                  <green>46</green>
                  <blue>50</blue>
                 </color>
                </property>
                <property name="defaultColor">
-                <color alpha="125">
+                <color alpha="90">
                  <red>42</red>
                  <green>46</green>
                  <blue>50</blue>
@@ -517,7 +517,7 @@
       <bool>true</bool>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
+      <item alignment="Qt::AlignTop">
        <widget class="QGroupBox" name="compatibility">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -535,6 +535,16 @@
          <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="kcfg_rememberWindowSizes">
+           <property name="text">
+            <string>Remember window size, and restore it on un-snap</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
@@ -660,7 +670,7 @@
          <cursorShape>ArrowCursor</cursorShape>
         </property>
         <property name="title">
-         <string>Snap groups (only for X11)</string>
+         <string>Snap groups</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -693,6 +703,26 @@
           <widget class="QCheckBox" name="kcfg_fillOnSnappedClose">
            <property name="text">
             <string>On close snapped window, try to fill the area</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="kcfg_fillOnSnappedMove">
+           <property name="text">
+            <string>On move snapped window, try to fill the area</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="kcfg_fitWindowInGroupBehind">
+           <property name="cursor">
+            <cursorShape>WhatsThisCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>When there's active snap group behind the window, try to fit newly snapped window in it. Requires &quot;Raise snapped window together&quot; enabled</string>
+           </property>
+           <property name="text">
+            <string>Try to fit snapped window in group behind it</string>
            </property>
           </widget>
          </item>

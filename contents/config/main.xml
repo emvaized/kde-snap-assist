@@ -29,6 +29,10 @@
 			<label>Sort windows in descending order (newest > oldest)</label>
 		  <default>true</default>
 		</entry>
+		<entry name="rememberWindowSizes" type="bool">
+			<label>Remember window size to restore it on un-snap</label>
+		  <default>true</default>
+		</entry>
 		<entry name="minimizeSnappedTogether" type="bool">
 			<label>Minimize/restore snapped windows together</label>
 		  <default>false</default>
@@ -41,6 +45,14 @@
 			<label>When close snapped window, try to fill the area</label>
 		  <default>false</default>
 		</entry>
+		<entry name="fillOnSnappedMove" type="bool">
+			<label>When moved snapped window, try to fill the area</label>
+		  <default>false</default>
+		</entry>
+		<entry name="fitWindowInGroupBehind" type="bool">
+			<label>Fit snapped window in group behind it, if any</label>
+		  <default>false</default>
+		</entry>
 		<entry name="cardColor" type="string">
 			<label>Card color</label>
 		  <default>#75475057</default>
@@ -51,7 +63,7 @@
 		</entry>
 		<entry name="backdropColor" type="string">
 			<label>Background color</label>
-		  <default>#502a2e32</default>
+		  <default>#902a2e32</default>
 		</entry>
 		<entry name="textColor" type="string">
 			<label>Text color for cards</label>

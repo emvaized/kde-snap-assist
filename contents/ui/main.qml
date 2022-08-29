@@ -33,7 +33,9 @@ Window {
     property var clients: null
     property var lastActiveClient: null /// last active client to focus if cancelled
     property int focusedIndex: 0 /// selection by keyboard
+    property bool trackActiveWindows: true
     property var activationTime: ({}) /// store timestamps of last window's activation
+    property var windowSizesBeforeSnap: ({}) /// store widnow sizes before they were snapped via script (when rememberWindowSizes is on)
     property int cardHeight: 220 /// calculated dynamically before assist reveal
     property int cardWidth: 370
     property int columnsCount: 2 /// calculated depending on available width
@@ -73,11 +75,14 @@ Window {
     property bool showOtherDesktopsWindows
     property bool descendingOrder
     property int snapDetectPrecision
+    property int delayBeforeShowingAssist
     property bool showSnappedWindows
     property bool minimizeSnappedTogether
     property bool raiseSnappedTogether
     property bool fillOnSnappedClose
-    property int delayBeforeShowingAssist
+    property bool fillOnSnappedMove
+    property int fitWindowInGroupBehind
+    property bool rememberWindowSizes
 
     Connections {
         target: workspace
@@ -91,14 +96,6 @@ Window {
         function onClientFullScreenSet(client, isFullScreen, isUser) {
             /// we likely don't want assist to be shown when user exited fullscreen mode
             if (isFullScreen == false) AssistManager.preventAssistFromShowing();
-        }
-        function onClientMinimized(client){
-            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl){ if (cl) cl.minimized = true; });
-        }
-        function onClientUnminimized(client){
-            if (!trackSnappedWindows || !minimizeSnappedTogether) return;
-            WindowManager.applyActionToAssosiatedSnapGroup(client, function(cl) { if (cl) cl.minimized = false; });
         }
         function onVirtualScreenSizeChanged(){
             /// Fix for assist getting shown when screen size changed
@@ -339,15 +336,25 @@ Window {
         textColor = KWin.readConfig("textColor", "#ffffff");
         cardColor = KWin.readConfig("cardColor", "#75475057");
         hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
-        backdropColor = KWin.readConfig("backdropColor", "#992a2e32");
+        backdropColor = KWin.readConfig("backdropColor", "#902a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
         transitionDuration = KWin.readConfig("transitionDuration", 150);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
         delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 100);
+        rememberWindowSizes = KWin.readConfig("rememberWindowSizes", true);
         showSnappedWindows = KWin.readConfig("showSnappedWindows", true);
         minimizeSnappedTogether = KWin.readConfig("minimizeSnappedTogether", false);
         raiseSnappedTogether = KWin.readConfig("raiseSnappedTogether", false);
         fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
+        fillOnSnappedMove = KWin.readConfig("fillOnSnappedMove", false);
+        fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
+        trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
+
+        /// workaround for configs bug, when boolean gets stored for string values
+        if (textColor == false) textColor = "#ffffff";
+        if (cardColor == false) cardColor = "#75475057";
+        if (hoveredCardColor == false) hoveredCardColor = "#75d9dde1";
+        if (backdropColor == false) backdropColor = "#902a2e32";
     }
 }
