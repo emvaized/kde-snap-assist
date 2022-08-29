@@ -308,7 +308,7 @@ function windowFitsInSnapGroup(client){
 
     /// find last active client
     let lastActiveWindowId = -1, lastActiveTime = -1;
-    const activeClientId = workspace.activeClient.internalId;
+    const activeClientId = workspace.activeClient ? workspace.activeClient.internalId : null;
     Object.keys(activationTime).forEach(function(key) {
         if(activationTime[key] > lastActiveTime && key != client.internalId && key != activeClientId) {
             const c = getClientFromId(key);
