@@ -8,17 +8,17 @@ You can select the window with mouse, as well as with arrow keys + `Enter`.
 To dismiss the assist, hit `Escape` key, press the close button or click anywhere on the empty area. 
 Script also supports quarter and triple tiling: you can switch layouts with the `Tab` key or using the button in corner.
 
-Since version `1.4`, there are now experimental options for *enhanced* snapped windows management:
-- Minimize/restore snapped windows together
-- Raise snapped windows together
-- On close snapped window, try to fill the area
+Since version `1.4`, there are experimental *snap group* features:
+- Minimize/restore snapped windows together ([demo](./assets/demos/snap%20groups/minimize-together.gif))
+- Raise snapped windows together ([demo](./assets/demos/snap%20groups/raise-together.gif))
+- On close snapped window, try to fill the area ([demo](./assets/demos/snap%20groups/fill-on-close.gif))
+- Try to fit snapped window in groupo behind ([demo](./assets/demos/snap%20groups/fit-in-group-behind.gif))
 
-When you enable any of these options in settings, the script will start tracking windows snapped with the script. Group of snapped windows is remembered once you fill the layout using the assist. Window is no longer considered snapped once it was closed or moved manually using the mouse. 
-Snap groups are not persistent, and likely will be needed to recreate on each reboot.
+When you enable any of these options in settings, the script will start tracking windows snapped with the script. Group of snapped windows is remembered once you fill the layout using the assist. Window is no longer considered snapped once it was closed or moved manually using the mouse. Snap groups are not persistent, and likely will be needed to recreate on each reboot.
 
 Ideas, suggestions, bugs reports and contributions to the project are welcome!
 
-![screenshot_snapassist](https://user-images.githubusercontent.com/37851576/183264649-da8d01cd-a8b7-4bac-92d7-ea71be00047d.png)
+![screenshot_snapassist](./assets/screenshot.png)
 
 ---
 ### Manual Installation
@@ -32,7 +32,7 @@ In order to install this script manually from GitHub, you'd need to:
 ### Troubleshooting
 - To apply the new settings, you may need to re-enable the script or restart KWin. The same is recommended if you switch from one version of the script to another
 - Assist will not show if you have no other windows matching the conditions set in the script settings. For example, by default the script does not show windows from other screens — so, if you have only one window on the current screen, assist will not show
-- Script settings button is not visible, or complains that "Plugin doesn't provide configuration file in the expected location" — this is a known KWin's bug, not related to the script. Make sure your system is up-to-date, as it seems to be fixed now. If it doesn't help, you can also try to install the script [manually](https://github.com/emvaized/kde-snap-assist#manual-installation).
+- Script settings button is not visible, or complains that "Plugin doesn't provide configuration file in the expected location" — this is a known KWin's bug, not related to the script. Make sure your system is up-to-date, as it seems to be fixed now. If it doesn't help, you can also try to install the script [manually](https://github.com/emvaized/kde-snap-assist#manual-installation)
 
 ---
 ### Compatibility notes
