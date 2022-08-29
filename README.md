@@ -12,7 +12,7 @@ Ideas, suggestions, bugs reports and contributions to the project are welcome!
 
 ![screenshot_snapassist](./assets/screenshot.png)
 
-
+---
 
 Since version `1.4`, there are also experimental *snap group* features:
 - Minimize/restore snapped windows together ([demo](./assets/demos/snap%20groups/minimize-together.gif))
