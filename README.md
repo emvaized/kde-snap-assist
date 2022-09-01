@@ -36,6 +36,7 @@ In order to install this script manually from GitHub, you'd need to:
 - To apply the new settings, you may need to re-enable the script or restart KWin. The same is recommended if you switch from one version of the script to another
 - Assist will not show if you have no other windows matching the conditions set in the script settings. For example, by default the script does not show windows from other screens — so, if you have only one window on the current screen, assist will not show
 - Script settings button is not visible, or complains that "Plugin doesn't provide configuration file in the expected location" — this is a known KWin's bug, not related to the script. Make sure your system is up-to-date, as it seems to be fixed now. If it doesn't help, you can also try to install the script [manually](https://github.com/emvaized/kde-snap-assist#manual-installation)
+- KWin crashes after sleep — it was reported [here](https://github.com/emvaized/kde-snap-assist/issues/35) that you may need to install `pygdbmi` library to fix the crash after sleep
 
 ---
 ### Compatibility notes
