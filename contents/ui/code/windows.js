@@ -80,6 +80,7 @@ function addListenersToClient(client) {
 }
 
 function onWindowResize(window) {
+    if (!window) return;
     if (activated) return;
     AssistManager.finishSnap(false); /// make sure we cleared all variables
 
