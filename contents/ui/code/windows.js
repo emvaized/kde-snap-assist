@@ -24,6 +24,8 @@ function selectClient(client){
 
 /// listeners
 function addListenersToClient(client) {
+    if (!client || client.specialWindow) return;
+
     client.frameGeometryChanged.connect(function() {
         if (!client.move && !client.resize && activated == false && preventFromShowing == false) {
             if (delayBeforeShowingAssist == 0) {
@@ -80,8 +82,7 @@ function addListenersToClient(client) {
 }
 
 function onWindowResize(window) {
-    if (!window) return;
-    if (activated) return;
+    if (activated || !window || window.deleted) return;
     AssistManager.finishSnap(false); /// make sure we cleared all variables
 
     /// don't show assist if window could be fit in the group behind
