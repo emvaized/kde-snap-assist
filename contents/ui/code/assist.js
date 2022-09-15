@@ -1,6 +1,8 @@
 /// assist
 function delayedShowAssist(dx, dy, height, width, window){
-    clients = Object.values(workspace.clients).filter(c => WindowManager.shouldShowWindow(c));
+    const allClients = workspace.clients;
+    desktopWindowId = allClients[0].windowId;
+    clients = Object.values(allClients).filter(c => WindowManager.shouldShowWindow(c));
     if (clients.length == 0) return;
 
     cardWidth = currentScreenWidth / 5;
