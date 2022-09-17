@@ -1,8 +1,7 @@
 /// assist
 function delayedShowAssist(dx, dy, height, width, window){
-    const allClients = workspace.clients;
-    desktopWindowId = allClients[0].windowId;
-    clients = Object.values(allClients).filter(c => WindowManager.shouldShowWindow(c));
+    const allClients = Object.values(workspace.clients);
+    clients = allClients.filter(c => WindowManager.shouldShowWindow(c));
     if (clients.length == 0) return;
 
     cardWidth = currentScreenWidth / 5;
@@ -19,6 +18,13 @@ function delayedShowAssist(dx, dy, height, width, window){
 
     if (sortByLastActive) WindowManager.sortClientsByLastActive();
     if (descendingOrder) clients = clients.reverse();
+
+    /// find current desktop background
+    if (showDesktopBackground) {
+        const i = allClients.findIndex((c) => c.desktopWindow && c.screen === workspace.activeScreen);
+        if (i < 0) return;
+        desktopWindowId = allClients[i].windowId;
+    }
 }
 
 function showAssist(dx, dy, height, width) {
