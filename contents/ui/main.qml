@@ -12,7 +12,6 @@ import org.kde.kwin 2.0 as KWinComponents
 import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQml.Models 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
-import QtGraphicalEffects 1.12
 
 import "components"
 import "./code/assist.js" as AssistManager
@@ -57,8 +56,6 @@ Window {
     property var filteredQuaters: ([]) /// quaters to ignore during iteration (occupied by big window)
     property int currentScreenWidth: 1
     property int currentScreenHeight: 1
-    property int fullScreenWidth: 1
-    property int fullScreenHeight: 1
     property int minDx: 0 /// store the real "0" dx coordinate
     property int minDy: 0
     property int assistPadding: 0  /// padding to add around assist (not applied to windows)
@@ -126,27 +123,9 @@ Window {
         mainWindow.hide();
     }
 
-    /// Desktop background
-    PlasmaCore.WindowThumbnail {
-        winId: desktopWindowId
-        id: desktopBackground
-        y: - (mainWindow.y - minDy)
-        x: - (mainWindow.x - minDx)
-        //height: currentScreenHeight
-        height: Screen.height
-        width: currentScreenWidth
-        opacity: 1
-        visible: showDesktopBackground
-
-        /// configurable blur
-        FastBlur {
-            id: blurBackground
-            anchors.fill: parent
-            source: desktopBackground
-            radius: desktopBackgroundBlur
-            visible: true
-            cached: true
-        }
+    /// Desktop preview on background with blur
+    Loader {
+        source: showDesktopBackground && desktopWindowId != null ? 'components/DesktopBackground.qml' : ''
     }
 
     /// Main view
