@@ -21,9 +21,9 @@ function delayedShowAssist(dx, dy, height, width, window){
 
     /// find current desktop background
     if (showDesktopBackground) {
-        const i = allClients.findIndex((c) => c.desktopWindow && c.screen === workspace.activeScreen);
-        if (i < 0) return;
-        desktopWindowId = allClients[i].windowId;
+        const indexOfDesktopWindow = allClients.findIndex((c) => c.desktopWindow && c.screen === workspace.activeScreen);
+        if (indexOfDesktopWindow < 0) return;
+        desktopWindowId = allClients[indexOfDesktopWindow].internalId;
     }
 }
 
