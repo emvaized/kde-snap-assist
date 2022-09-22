@@ -22,7 +22,7 @@ Item {
         anchors.fill: parent
         source: desktopBackground
         radius: desktopBackgroundBlur
-        visible: true
         cached: false
+        visible: desktopBackgroundBlur > 0
     }
 }
