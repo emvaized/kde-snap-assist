@@ -301,10 +301,10 @@
            <item>
             <widget class="QCheckBox" name="kcfg_showDesktopBackground">
              <property name="cursor">
-              <cursorShape>WhatsThisCursor</cursorShape>
+              <cursorShape>ArrowCursor</cursorShape>
              </property>
              <property name="toolTip">
-              <string>May show the wrong screen on multi-monitor setup</string>
+              <string/>
              </property>
              <property name="text">
               <string>Show desktop background</string>
