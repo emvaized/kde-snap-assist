@@ -1,3 +1,10 @@
+1.6.2
+- New feature "Show desktop background" and associated blur option
+- Improved stability and performance by not attaching listeners to special windows (alerts, notifications, etc)
+
+1.6.1
+- Fix for KWin crash after waking from sleep
+
 1.6
 - Wayland support for snap groups features and sorting windows by last activation time
 - New option "Remember window sizes, and restore it on un-snap" for windows snapped with the script

@@ -85,5 +85,13 @@
 			<label>Delay in ms before assist gets shown</label>
 			<default>100</default>
 		</entry>
+		<entry name="showDesktopBackground" type="bool">
+			<label>Show desktop background</label>
+			<default>false</default>
+		</entry>
+		<entry name="desktopBackgroundBlur" type="int">
+			<label>Amount of blur to apply to desktop background</label>
+			<default>18</default>
+		</entry>
     </group>
 </kcfg>

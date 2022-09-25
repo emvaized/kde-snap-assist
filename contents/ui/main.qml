@@ -31,6 +31,7 @@ Window {
     /// service variables
     property bool activated: false
     property var clients: null
+    property var desktopWindowId: null
     property var lastActiveClient: null /// last active client to focus if cancelled
     property int focusedIndex: 0 /// selection by keyboard
     property bool trackActiveWindows: true
@@ -83,6 +84,8 @@ Window {
     property bool fillOnSnappedMove
     property int fitWindowInGroupBehind
     property bool rememberWindowSizes
+    property bool showDesktopBackground
+    property int desktopBackgroundBlur
 
     Connections {
         target: workspace
@@ -118,6 +121,11 @@ Window {
         }
 
         mainWindow.hide();
+    }
+
+    /// Desktop preview on background with blur
+    Loader {
+        source: showDesktopBackground && desktopWindowId != null ? 'components/DesktopBackground.qml' : ''
     }
 
     /// Main view
@@ -348,6 +356,8 @@ Window {
         fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
         fillOnSnappedMove = KWin.readConfig("fillOnSnappedMove", false);
         fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
+        showDesktopBackground = KWin.readConfig("showDesktopBackground", false);
+        desktopBackgroundBlur = KWin.readConfig("desktopBackgroundBlur", 18);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
         trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
 
