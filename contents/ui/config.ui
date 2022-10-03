@@ -360,6 +360,22 @@
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QCheckBox" name="kcfg_immersiveMode">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="cursor">
+              <cursorShape>WhatsThisCursor</cursorShape>
+             </property>
+             <property name="toolTip">
+              <string>Allows for more Windows-like experience, and also more beautiful animations</string>
+             </property>
+             <property name="text">
+              <string>Immersive background mode</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -828,6 +844,22 @@
     <hint type="destinationlabel">
      <x>539</x>
      <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>kcfg_showDesktopBackground</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_immersiveMode</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>644</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>624</x>
+     <y>277</y>
     </hint>
    </hints>
   </connection>

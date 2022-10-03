@@ -1,17 +1,65 @@
+function animateWindowPreviewToSelect(index, client){
+    if (!immersiveMode) {
+        selectClient(client);
+        onClientSelect(client);
+        return;
+    }
+
+    visibleWindowPreviews = [...visibleWindowPreviews, client];
+
+    timer.setTimeout(function(){
+        const item = windowPreviewsRepeater.itemAt(visibleWindowPreviews.length - 1);
+        const thumbnail = clientsRepeater.itemAt(index);
+
+        if (!item || !thumbnail) return;
+        const thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
+
+        /// set preview to fit corresponding thumbnail
+        transitionDuration = 0;
+        item.x = thumbnailGlobalCoords.x + 3;
+        item.y = thumbnailGlobalCoords.y + 32;
+        item.height = cardHeight - 40;
+        item.width = cardWidth - 6;
+        transitionDuration = transitionDurationOnAssistMove;
+
+        timer.setTimeout(function(){
+            /// animate to selected new size
+            item.x = mainWindow.x - (assistPadding / 2);
+            item.y = mainWindow.y - (assistPadding / 2);
+            item.width = mainWindow.width + assistPadding,
+            item.height = mainWindow.height + assistPadding;
+
+            /// actually select client
+            selectClient(client);
+            timer.setTimeout(function(){
+                onClientSelect(client);
+            }, transitionDuration);
+        }, 3);
+    }, 0);
+}
+
 function selectClient(client){
     client.setMaximize(false, false);
     client.shade = false;
+    client.minimized = false;
 
     if (rememberWindowSizes)
         windowSizesBeforeSnap[client.internalId] = { height: client.height, width: client.width };
 
-    client.frameGeometry = Qt.rect(
+    client.frameGeometry = immersiveMode ? Qt.rect(
         mainWindow.x - (assistPadding / 2),
         mainWindow.y - (assistPadding / 2),
         mainWindow.width + assistPadding,
         mainWindow.height + assistPadding
+    ) : Qt.rect(
+        main.x - (assistPadding / 2),
+        main.y - (assistPadding / 2),
+        main.width + assistPadding,
+        main.height + assistPadding
     );
+}
 
+function onClientSelect(client){
     workspace.activeClient = client;
 
     if (trackSnappedWindows) {
@@ -21,6 +69,7 @@ function selectClient(client){
 
     AssistManager.checkToShowNextQuaterAssist(client);
 }
+
 
 /// listeners
 function addListenersToClient(client) {
@@ -87,6 +136,12 @@ function onWindowResize(window) {
 
     /// don't show assist if window could be fit in the group behind
     if (fitWindowInGroupBehind && windowFitsInSnapGroup(window)) return;
+
+    currentWindowId = window.internalId;
+    currentWindowPreview.x = window.x;
+    currentWindowPreview.y = window.y;
+    currentWindowPreview.width = window.width;
+    currentWindowPreview.height = window.height;
 
     const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
     currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
@@ -364,13 +419,13 @@ function windowFitsInSnapGroup(client){
 /// utility functions
 function isEqual(a, b) {
     /// for compatibility with scripts like Window Gap
+//     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
 }
 
 function getClientFromId(windowId){
-    //return workspace.getClient(windowId);
-    /// Works on Wayland
-    return Object.values(workspace.clients).find((el) => el.internalId == windowId);
+    //return workspace.getClient(windowId); /// doesn't work on Wayland
+    return allClients.find((el) => el.internalId == windowId);
 }
 
 function shouldShowWindow(client) {

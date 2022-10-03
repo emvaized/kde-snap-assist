@@ -1,9 +1,9 @@
 /// Ideas:
 /// - refactor all complex height/width calculations to use simple 12x12 virtual grid
 /// - "skip layout" button, which would allow to skip to next assist position from the quatersToShowNext
-/// - support for Krunner text field to launch new apps
+/// - support for search field, and maybe Krunner to launch new apps
 /// - restore previous size on un-snapping of programatically snapped window
-/// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once
+/// - create task switcher widget which will visually show windows tiled using this assist, allowing to minimize/restore them at once (not possible yet)
 
 import QtQuick 2.12
 import QtQuick.Window 2.12
@@ -12,6 +12,7 @@ import org.kde.kwin 2.0 as KWinComponents
 import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQml.Models 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
+import QtGraphicalEffects 1.12
 
 import "components"
 import "./code/assist.js" as AssistManager
@@ -19,19 +20,21 @@ import "./code/keyboard.js" as KeyboardManager
 import "./code/windows.js" as WindowManager
 
 Window {
-    id: mainWindow
+    id: main
     flags: Qt.FramelessWindowHint | Qt.X11BypassWindowManagerHint
     visible: true
     color: "transparent"
-    x: mainWindow.width * 2
-    y: mainWindow.height * 2
-    height: 1
-    width: 1
+    x: 0
+    y: 0
+    height: currentScreenHeight
+    width: currentScreenWidth
 
     /// service variables
     property bool activated: false
-    property var clients: null
+    property var clients: null /// filtered clients to show in the grid
+    property var allClients: null /// all clients fetched on assist reveal
     property var desktopWindowId: null
+    property var currentWindowId: null
     property var lastActiveClient: null /// last active client to focus if cancelled
     property int focusedIndex: 0 /// selection by keyboard
     property bool trackActiveWindows: true
@@ -43,6 +46,10 @@ Window {
     property int gridSpacing: 25 /// maybe should be configurable?
     property bool cycleKeyboard: false /// not in use
     property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
+
+    property int transitionDurationOnAssistMove: 0 /// separate transition duration when moving assist window with the Tab key
+    property var visibleWindowPreviews: ([]) /// stores windows which should be displayed on top of canvas (snapped)
+    property bool showRegularGridPreviews: true /// used for seamless switch between animated and static window previews
 
     /// for tracking snapped windows
     property bool trackSnappedWindows: true
@@ -86,6 +93,7 @@ Window {
     property bool rememberWindowSizes
     property bool showDesktopBackground
     property int desktopBackgroundBlur
+    property bool immersiveMode
 
     Connections {
         target: workspace
@@ -120,20 +128,57 @@ Window {
             WindowManager.addListenersToClient(windows[i]);
         }
 
-        mainWindow.hide();
+        main.hide();
     }
 
-    /// Desktop preview on background with blur
+    /// Desktop preview on background
     Loader {
-        source: showDesktopBackground && desktopWindowId != null ? 'components/DesktopBackground.qml' : ''
+        source: !immersiveMode && showDesktopBackground && desktopWindowId != null ? 'components/DesktopBackground.qml' : ''
+    }
+
+    Loader {
+        active: immersiveMode && desktopWindowId != null
+        sourceComponent: Item {
+            y: 0
+            x: 0
+            height: Screen.height
+            width: currentScreenWidth
+            visible: showDesktopBackground && activated
+
+            KWinComponents.ThumbnailItem {
+                wId: desktopWindowId
+                id: desktopBackground
+                anchors.fill: parent
+            }
+        }
+    }
+
+    /// click on empty space to close
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {  if (activated) AssistManager.hideAssist(true); }
     }
 
     /// Main view
-    Rectangle {
-        id: assistBackground
-        width: mainWindow.width
-        height: mainWindow.height
-        color: backdropColor
+    Item {
+        id: mainWindow
+        width: 1
+        height: 1
+        clip: true
+        anchors.fill: immersiveMode ? null : parent
+
+        /// Blurred clipped part of background
+        Loader {
+            source: immersiveMode && showDesktopBackground && desktopWindowId != null ? 'components/DesktopBackground.qml' : ''
+        }
+
+        /// Backdrop color
+        Rectangle {
+            anchors.fill: parent
+            border.color: "#75475057"
+            border.width: immersiveMode ? 1 : 0
+            color: backdropColor
+        }
 
         /// fade-in animation on appear
         NumberAnimation on opacity {
@@ -143,11 +188,11 @@ Window {
             duration: transitionDuration
         }
 
-        /// click on empty space to close
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {  if (activated) AssistManager.hideAssist(true); }
-        }
+        /// transition on moving assist around
+        Behavior on x { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo } }
+        Behavior on y { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo} }
+        Behavior on width { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo} }
+        Behavior on height { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo} }
 
         ScrollView {
             id: scrollView
@@ -218,7 +263,7 @@ Window {
                                     id: clientThumbnail
                                     wId: modelData.internalId
                                     clip: true
-                                    visible: mainWindow.activated
+                                    visible: activated && (showRegularGridPreviews || modelData.minimized)
                                     width: cardWidth - 6
                                     height: cardHeight - 40
                                 }
@@ -235,48 +280,87 @@ Window {
                                     clientItem.color = cardColor;
                                 }
                                 onClicked: {
-                                    WindowManager.selectClient(modelData);
+                                    WindowManager.animateWindowPreviewToSelect(index, modelData);
                                 }
                             }
                         }
                     }
             }
         }
-    }
 
-    /// Close assist button
-    CornerButton {
-        id: closeButton
-        y: 20
-        icon.name: "window-close"
-        ToolTip.text: qsTr("Close snap assist")
-        onClicked: AssistManager.hideAssist(true);
-    }
-
-    /// Change layout button
-    CornerButton {
-        id: changeSizeButton
-        y: 60
-
-        Image {
-            anchors.centerIn: parent
-            source: mainWindow.height == currentScreenHeight && mainWindow.width == currentScreenWidth / 2 ?
-                        "icons/vertical-half.svg"
-                        : mainWindow.width == currentScreenWidth ?
-                            "icons/horizontal-half.svg"
-                            : mainWindow.width == currentScreenWidth / 3 ?
-                                "icons/three-in-row.svg"
-                                : mainWindow.width == currentScreenWidth / 3 * 2 ?
-                                    "icons/65-35.svg"
-                                    : "icons/quarter.svg"
-            sourceSize.width: parent.width - 8
-            sourceSize.height: parent.height - 8
-            cache: true
-            opacity: 0.85
+        /// Close assist button
+        CornerButton {
+            id: closeButton
+            y: 20
+            icon.name: "window-close"
+            ToolTip.text: qsTr("Close snap assist (Esc)")
+            onClicked: AssistManager.hideAssist(true);
         }
 
-        ToolTip.text: qsTr("Change layout")
-        onClicked: AssistManager.switchAssistLayout();
+        /// Change layout button
+        CornerButton {
+            id: changeSizeButton
+            y: 60
+
+            Image {
+                anchors.centerIn: parent
+                source: mainWindow.height == currentScreenHeight && mainWindow.width == currentScreenWidth / 2 ?
+                            "icons/vertical-half.svg"
+                            : mainWindow.width == currentScreenWidth ?
+                                "icons/horizontal-half.svg"
+                                : mainWindow.width == currentScreenWidth / 3 ?
+                                    "icons/three-in-row.svg"
+                                    : mainWindow.width == currentScreenWidth / 3 * 2 ?
+                                        "icons/65-35.svg"
+                                        : "icons/quarter.svg"
+                sourceSize.width: parent.width - 8
+                sourceSize.height: parent.height - 8
+                cache: true
+                opacity: 0.85
+            }
+
+            ToolTip.text: qsTr("Change layout (Tab)")
+            onClicked: AssistManager.switchAssistLayout();
+        }
+    }
+
+    /// Snapped windows previews
+    Repeater {
+        id: windowPreviewsRepeater
+        enabled: immersiveMode
+        model: visibleWindowPreviews
+
+        KWinComponents.ThumbnailItem {
+            wId: modelData.internalId
+            clip: true
+            visible: !modelData.minimized
+            width: modelData.width
+            height: modelData.height
+            x: modelData.x
+            y: modelData.y
+
+            Behavior on x { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo } }
+            Behavior on y { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo} }
+            Behavior on width { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo} }
+            Behavior on height { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo} }
+        }
+    }
+
+    /// Current window preview
+    Loader {
+        id: currentWindowPreview
+        active: immersiveMode && currentWindowId != null
+        sourceComponent: Item {
+            width: 1
+            height: 1
+            x: 0
+            y: 0
+
+            KWinComponents.ThumbnailItem {
+                wId: currentWindowId
+                anchors.fill: parent
+            }
+        }
     }
 
     /// Timer to delay snap assist reveal.
@@ -326,7 +410,7 @@ Window {
                     KeyboardManager.moveFocusDown();
                     break;
                 case Qt.Key_Return:
-                    WindowManager.selectClient(clients[focusedIndex]);
+                    WindowManager.animateWindowPreviewToSelect(focusedIndex, clients[focusedIndex]);
                     break;
                 case Qt.Key_Tab:
                     AssistManager.switchAssistLayout();
@@ -358,8 +442,10 @@ Window {
         fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
         showDesktopBackground = KWin.readConfig("showDesktopBackground", false);
         desktopBackgroundBlur = KWin.readConfig("desktopBackgroundBlur", 18);
+        immersiveMode = KWin.readConfig("immersiveMode", false);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
         trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
+        if (!showDesktopBackground) immersiveMode = false;
 
         /// workaround for configs bug, when boolean gets stored for string values
         if (textColor == false) textColor = "#ffffff";

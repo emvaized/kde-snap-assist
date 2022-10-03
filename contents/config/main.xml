@@ -93,5 +93,9 @@
 			<label>Amount of blur to apply to desktop background</label>
 			<default>18</default>
 		</entry>
+		<entry name="immersiveMode" type="bool">
+			<label>Immersive</label>
+			<default>false</default>
+		</entry>
     </group>
 </kcfg>

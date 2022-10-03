@@ -4,11 +4,11 @@ import QtGraphicalEffects 1.12
 import org.kde.kwin 2.0 as KWinComponents
 
 Item {
-    y: - (mainWindow.y - minDy)
-    x: - (mainWindow.x - minDx)
+    y: - ((immersiveMode ? mainWindow.y : main.y) - minDy)
+    x: - ((immersiveMode ? mainWindow.x : main.x) - minDx)
     height: Screen.height
     width: currentScreenWidth
-    visible: showDesktopBackground && mainWindow.activated
+    visible: showDesktopBackground && activated
 
     KWinComponents.ThumbnailItem {
         wId: desktopWindowId
