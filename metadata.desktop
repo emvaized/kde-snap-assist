@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=KDE Snap Assist
+Name=KDE Snap Assist 2
 Name[nl]=KDE-vensterrangschikking
 Comment=KWin script which suggests other window thumbnails on snap
 Comment[es]=Script de KWin que sugiere otras miniaturas de ventanas en el snap
@@ -16,8 +16,8 @@ X-KDE-ConfigModule=kwin/effects/configs/kcm_kwin4_genericscripted
 
 X-KDE-PluginInfo-Author=emvaized
 X-KDE-PluginInfo-Email=maximtsyba@gmail.com
-X-KDE-PluginInfo-Name=kdesnapassist
-X-KDE-PluginInfo-Version=1.6.2
+X-KDE-PluginInfo-Name=kdesnapassist2
+X-KDE-PluginInfo-Version=2.0-dev
 X-KDE-PluginInfo-License=GPL
 X-KDE-PluginInfo-EnabledByDefault=true
 X-KDE-PluginInfo-Website=https://github.com/emvaized/kde-snap-assist
