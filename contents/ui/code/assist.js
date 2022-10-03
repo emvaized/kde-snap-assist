@@ -224,7 +224,7 @@ function switchAssistLayout() {
                 storedQuaterPosition.dx = mainWindow.x;
                 mainWindow.width = thirdOfScreenWidth * 2;
                 columnsCount = 2;
-                filteredQuaters = isEqual(mainWindow.x, minDx) ? [1] : [2];
+                filteredQuaters = WindowManager.isEqual(mainWindow.x, minDx) ? [1] : [2];
 
             } else if (WindowManager.isEqual(mainWindow.height, currentScreenHeight / 2)) {
                 /// return to initial position
@@ -234,13 +234,13 @@ function switchAssistLayout() {
                 columnsCount = 1;
                 filteredQuaters = [];
                 delete quatersToShowNext[0];
-            }
-                else if (WindowManager.isEqual(mainWindow.width, thirdOfScreenWidth * 2)) {
+
+            } else if (WindowManager.isEqual(mainWindow.width, thirdOfScreenWidth * 2)) {
                 /// show vertically
                 mainWindow.height = currentScreenHeight / 2;
                 filteredQuaters = [1, 2];
                 quatersToShowNext[0] = {dx: mainWindow.x, dy: minDy + (currentScreenHeight / 2), height: currentScreenHeight / 2, width: mainWindow.width};
-                }
+            }
         }
     }
 }
