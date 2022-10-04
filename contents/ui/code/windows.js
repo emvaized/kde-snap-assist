@@ -7,35 +7,33 @@ function animateWindowPreviewToSelect(index, client){
 
     visibleWindowPreviews = [...visibleWindowPreviews, client];
 
+    const item = windowPreviewsRepeater.itemAt(visibleWindowPreviews.length - 1);
+    const thumbnail = clientsRepeater.itemAt(index);
+
+    if (!item || !thumbnail) return;
+    const thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
+
+    /// set preview to fit corresponding thumbnail
+    transitionDuration = 0;
+    item.x = thumbnailGlobalCoords.x + 3;
+    item.y = thumbnailGlobalCoords.y + 32;
+    item.height = cardHeight - 40;
+    item.width = cardWidth - 6;
+    transitionDuration = transitionDurationOnAssistMove;
+
     timer.setTimeout(function(){
-        const item = windowPreviewsRepeater.itemAt(visibleWindowPreviews.length - 1);
-        const thumbnail = clientsRepeater.itemAt(index);
+        /// animate to selected new size
+        item.x = mainWindow.x - (assistPadding / 2);
+        item.y = mainWindow.y - (assistPadding / 2);
+        item.width = mainWindow.width + assistPadding,
+        item.height = mainWindow.height + assistPadding;
 
-        if (!item || !thumbnail) return;
-        const thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
-
-        /// set preview to fit corresponding thumbnail
-        transitionDuration = 0;
-        item.x = thumbnailGlobalCoords.x + 3;
-        item.y = thumbnailGlobalCoords.y + 32;
-        item.height = cardHeight - 40;
-        item.width = cardWidth - 6;
-        transitionDuration = transitionDurationOnAssistMove;
-
+        /// actually select client
+        selectClient(client);
         timer.setTimeout(function(){
-            /// animate to selected new size
-            item.x = mainWindow.x - (assistPadding / 2);
-            item.y = mainWindow.y - (assistPadding / 2);
-            item.width = mainWindow.width + assistPadding,
-            item.height = mainWindow.height + assistPadding;
-
-            /// actually select client
-            selectClient(client);
-            timer.setTimeout(function(){
-                onClientSelect(client);
-            }, transitionDuration);
-        }, 3);
-    }, 0);
+            onClientSelect(client);
+        }, transitionDuration);
+    }, 3);
 }
 
 function selectClient(client){

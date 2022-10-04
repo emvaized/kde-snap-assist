@@ -17,7 +17,7 @@ function delayedShowAssist(dx, dy, height, width, window){
     }, 3);
 
     if (sortByLastActive) WindowManager.sortClientsByLastActive();
-    if (immersiveMode && visibleWindowPreviews.length == 0) visibleWindowPreviews = clients;
+    if (immersiveMode && filteredClients.length <= 1) visibleWindowPreviews = clients;
     if (descendingOrder) clients = clients.reverse();
 
     /// find current desktop background
@@ -60,8 +60,7 @@ function showAssist(dx, dy, height, width) {
     fadeInAnimation.restart();
     scrollView.ScrollBar.vertical.position = 0;
     transitionDurationOnAssistMove = transitionDuration;
-
-    if (immersiveMode && snappedWindows.length <= 1) animateWindowPreviewsOnInit();
+    if (immersiveMode && filteredClients.length <= 1) animateWindowPreviewsOnInit();
 }
 
 
