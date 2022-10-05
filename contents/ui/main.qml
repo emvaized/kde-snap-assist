@@ -283,6 +283,8 @@ Window {
                                     WindowManager.animateWindowPreviewToSelect(index, modelData);
                                 }
                             }
+
+                            Behavior on opacity { PropertyAnimation {duration: transitionDuration } }
                         }
                     }
             }

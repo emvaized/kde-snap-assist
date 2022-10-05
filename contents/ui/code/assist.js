@@ -323,7 +323,7 @@ function animateWindowPreviewsOnCancel(callback){
     /// show previews of all windows
     visibleWindowPreviews = [...descendingOrder ? clients.reverse() : clients, ...visibleWindowPreviews];
 
-    let item, thumbnail, thumbnailGlobalCoords, indexOfThumbnail;
+    let item, thumbnail, thumbnailGlobalCoords, indexOfThumbnail, cl;
     timer.setTimeout(function(){
         transitionDuration = 0;
         showRegularGridPreviews = false;
@@ -331,11 +331,12 @@ function animateWindowPreviewsOnCancel(callback){
         /// move previews to their positions in the grid
         for(let i = 0, l = visibleWindowPreviews.length; i < l; i++){
             if (snappedWindows.includes(visibleWindowPreviews[i].internalId)) continue;
+
             item = windowPreviewsRepeater.itemAt(i);
             thumbnail = clientsRepeater.itemAt(descendingOrder ? l - 1 - i : i);
             if (!item || !thumbnail) continue;
-            thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
+            thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
             item.x = thumbnailGlobalCoords.x + 3 - minDx;
             item.y = thumbnailGlobalCoords.y + 32 - minDy;
             item.height = cardHeight - 40;
@@ -345,21 +346,25 @@ function animateWindowPreviewsOnCancel(callback){
         timer.setTimeout(function(){
             /// animate previews to their windows positions
             transitionDuration = transitionDurationOnAssistMove;
+
             for(let i = 0, l = visibleWindowPreviews.length; i < l; i++){
                 item = windowPreviewsRepeater.itemAt(i);
                 if (!item) continue;
 
-                item.x = visibleWindowPreviews[i].x - minDx;
-                item.y = visibleWindowPreviews[i].y - minDy;
-                item.height = visibleWindowPreviews[i].height;
-                item.width = visibleWindowPreviews[i].width;
+                cl = visibleWindowPreviews[i];
+                if (cl.minimized) clientsRepeater.itemAt(descendingOrder ? l - 1 - i : i).opacity = 0;
 
-                timer.setTimeout(function(){
+                item.x = cl.x - minDx;
+                item.y = cl.y - minDy;
+                item.height = cl.height;
+                item.width = cl.width;
+            }
+
+            timer.setTimeout(function(){
                     /// close assist
                     showRegularGridPreviews = true;
                     if (callback) callback();
-                }, transitionDuration);
-            }
+            }, transitionDuration);
         }, 1);
     }, 0);
 }
