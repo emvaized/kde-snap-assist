@@ -299,6 +299,12 @@ function animateWindowPreviewsOnInit(){
             if (!item || !thumbnail) continue;
             thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
+            /// don't animate preview if it's card scrolled out of view
+            if (thumbnailGlobalCoords.y > scrollView.height) {
+                item.visible = false;
+                continue;
+            }
+
             item.x = thumbnailGlobalCoords.x + 3 - minDx;
             item.y = thumbnailGlobalCoords.y + 32 - minDy;
             item.height = cardHeight - 40;
@@ -325,7 +331,6 @@ function animateWindowPreviewsOnCancel(callback){
         /// move previews to their positions in the grid
         for(let i = 0, l = visibleWindowPreviews.length; i < l; i++){
             if (snappedWindows.includes(visibleWindowPreviews[i].internalId)) continue;
-
             item = windowPreviewsRepeater.itemAt(i);
             thumbnail = clientsRepeater.itemAt(descendingOrder ? l - 1 - i : i);
             if (!item || !thumbnail) continue;
@@ -355,6 +360,6 @@ function animateWindowPreviewsOnCancel(callback){
                     if (callback) callback();
                 }, transitionDuration);
             }
-        }, 3);
+        }, 1);
     }, 0);
 }
