@@ -129,7 +129,7 @@ function addListenersToClient(client) {
 }
 
 function onWindowResize(window) {
-    if (activated || !window || window.deleted || window.specialWindow) return;
+    if (activated || !window || window.deleted || window.specialWindow || !window.active) return;
     AssistManager.finishSnap(false); /// make sure we cleared all variables
 
     /// don't show assist if window could be fit in the group behind
