@@ -36,15 +36,15 @@ function showAssist(dx, dy, height, width) {
 
     if (immersiveMode) {
         /// need separation between the window and main view
-        main.x = 0;
-        main.y = 0;
+        main.x = minDx;
+        main.y = minDy;
         main.width = currentScreenWidth;
         main.height = currentScreenHeight;
 
         mainWindow.width = width - assistPadding;
         mainWindow.height = height - assistPadding;
-        mainWindow.x = dx + (assistPadding / 2);
-        mainWindow.y = dy + (assistPadding / 2);
+        mainWindow.x = dx - (immersiveMode ? minDx : 0) + (assistPadding / 2);
+        mainWindow.y = dy - (immersiveMode ? minDy : 0) + (assistPadding / 2);
     } else {
         main.width = width;
         main.height = height;
@@ -143,6 +143,7 @@ function switchAssistLayout() {
     if (!activated) return;
     const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
     const assist = immersiveMode ? mainWindow : main;
+    if (immersiveMode) { minDx = 0; minDy = 0; }
 
     if (layoutMode == 0) {
         /// horizontal halve
@@ -298,8 +299,8 @@ function animateWindowPreviewsOnInit(){
             if (!item || !thumbnail) continue;
             thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
-            item.x = thumbnailGlobalCoords.x + 3;
-            item.y = thumbnailGlobalCoords.y + 32;
+            item.x = thumbnailGlobalCoords.x + 3 - minDx;
+            item.y = thumbnailGlobalCoords.y + 32 - minDy;
             item.height = cardHeight - 40;
             item.width = cardWidth - 6;
         }
@@ -330,8 +331,8 @@ function animateWindowPreviewsOnCancel(callback){
             if (!item || !thumbnail) continue;
             thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
-            item.x = thumbnailGlobalCoords.x + 3;
-            item.y = thumbnailGlobalCoords.y + 32;
+            item.x = thumbnailGlobalCoords.x + 3 - minDx;
+            item.y = thumbnailGlobalCoords.y + 32 - minDy;
             item.height = cardHeight - 40;
             item.width = cardWidth - 6;
         }
@@ -343,8 +344,8 @@ function animateWindowPreviewsOnCancel(callback){
                 item = windowPreviewsRepeater.itemAt(i);
                 if (!item) continue;
 
-                item.x = visibleWindowPreviews[i].x;
-                item.y = visibleWindowPreviews[i].y;
+                item.x = visibleWindowPreviews[i].x - minDx;
+                item.y = visibleWindowPreviews[i].y - minDy;
                 item.height = visibleWindowPreviews[i].height;
                 item.width = visibleWindowPreviews[i].width;
 

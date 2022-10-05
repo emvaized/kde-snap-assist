@@ -336,8 +336,8 @@ Window {
             visible: !modelData.minimized
             width: modelData.width
             height: modelData.height
-            x: modelData.x
-            y: modelData.y
+            x: modelData.x - minDx
+            y: modelData.y - minDy
 
             Behavior on x { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo } }
             Behavior on y { PropertyAnimation {duration: transitionDuration; easing.type: Easing.OutExpo} }

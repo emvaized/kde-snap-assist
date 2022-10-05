@@ -135,18 +135,21 @@ function onWindowResize(window) {
     /// don't show assist if window could be fit in the group behind
     if (fitWindowInGroupBehind && windowFitsInSnapGroup(window)) return;
 
-    currentWindowId = window.internalId;
-    currentWindowPreview.x = window.x;
-    currentWindowPreview.y = window.y;
-    currentWindowPreview.width = window.width;
-    currentWindowPreview.height = window.height;
-
     const maxArea = workspace.clientArea(KWin.MaximizeArea, window);
     currentScreenWidth = maxArea.width; currentScreenHeight = maxArea.height;
     minDx = maxArea.x; minDy = maxArea.y;
     const dx = window.x, dy = window.y;
     const width = window.width, height = window.height;
     const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
+
+      /// store current window for animation
+    if (immersiveMode) {
+        currentWindowId = window.internalId;
+        currentWindowPreview.x = window.x - minDx;
+        currentWindowPreview.y = window.y - minDy;
+        currentWindowPreview.width = window.width;
+        currentWindowPreview.height = window.height;
+    }
 
     /// Detect if window was snapped
     /// left/right halves
