@@ -15,8 +15,8 @@ function animateWindowPreviewToSelect(index, client){
 
     /// set preview to fit corresponding thumbnail
     transitionDuration = 0;
-    item.x = thumbnailGlobalCoords.x + 3;
-    item.y = thumbnailGlobalCoords.y + 32;
+    item.x = thumbnailGlobalCoords.x + 3 - minDx;
+    item.y = thumbnailGlobalCoords.y + 32 - minDy;
     item.height = cardHeight - 40;
     item.width = cardWidth - 6;
     transitionDuration = transitionDurationOnAssistMove;
@@ -45,8 +45,8 @@ function selectClient(client){
         windowSizesBeforeSnap[client.internalId] = { height: client.height, width: client.width };
 
     client.frameGeometry = immersiveMode ? Qt.rect(
-        mainWindow.x - (assistPadding / 2),
-        mainWindow.y - (assistPadding / 2),
+        mainWindow.x - (assistPadding / 2) + minDx,
+        mainWindow.y - (assistPadding / 2) + minDy,
         mainWindow.width + assistPadding,
         mainWindow.height + assistPadding
     ) : Qt.rect(
