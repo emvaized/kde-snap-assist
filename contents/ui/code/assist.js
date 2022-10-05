@@ -352,7 +352,10 @@ function animateWindowPreviewsOnCancel(callback){
                 if (!item) continue;
 
                 cl = visibleWindowPreviews[i];
-                if (cl.minimized) clientsRepeater.itemAt(descendingOrder ? l - 1 - i : i).opacity = 0;
+                if (cl.minimized) {
+                    thumbnail = clientsRepeater.itemAt(descendingOrder ? l - 1 - i : i);
+                    if (thumbnail) thumbnail.opacity = 0;
+                }
 
                 item.x = cl.x - minDx;
                 item.y = cl.y - minDy;
