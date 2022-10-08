@@ -338,6 +338,11 @@ function fillClosedWindow(closedWindow, group){
         const windowGeom = window.frameGeometry;
         if (!windowGeom) continue;
 
+        /// special handling for 3-in-row layout
+        /// when closed 3rd window, we don't want the first one to try filling it
+        if (closedWindowGeom.width == currentScreenWidth / 3 && closedWindowGeom.x == minDx + (currentScreenWidth / 3 * 2))
+            if (windowGeom.width == currentScreenWidth / 3 && windowGeom.x == minDx) continue;
+
         if (windowGeom.x == closedWindowGeom.x && windowGeom.width == closedWindowGeom.width){
             /// expand vertically
             AssistManager.preventAssistFromShowing();
