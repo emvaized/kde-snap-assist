@@ -71,7 +71,7 @@ function onClientSelect(client){
 
 /// listeners
 function addListenersToClient(client) {
-    if (!client || client.specialWindow) return;
+    if (!client || client.specialWindow || client.skipSwitcher) return;
 
     client.frameGeometryChanged.connect(function() {
         if (!client.move && !client.resize && activated == false && preventFromShowing == false) {
@@ -252,7 +252,7 @@ function onWindowResize(window) {
 function handleWindowFocus(window) {
     if (ignoreFocusChange) return;
     if (activated) AssistManager.hideAssist(false);
-    if (!window || window.specialWindow) return;
+    if (!window || window.specialWindow || window.skipSwitcher) return;
 
     /// Store timestamp of last window activation
     if (trackActiveWindows) {
