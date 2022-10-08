@@ -143,7 +143,6 @@ function switchAssistLayout() {
     if (!activated) return;
     const halfScreenWidth = currentScreenWidth / 2, halfScreenHeight = currentScreenHeight / 2;
     const assist = immersiveMode ? mainWindow : main;
-    if (immersiveMode) { minDx = 0; minDy = 0; }
 
     if (layoutMode == 0) {
         /// horizontal halve
@@ -151,12 +150,12 @@ function switchAssistLayout() {
             /// reduce to quater
             assist.height /= 2;
             if (assist.y !== minDy + (assistPadding / 2)) assist.y = minDy + (assistPadding / 2);
-            quatersToShowNext[0] = {dx: assist.x, dy: minDy + halfScreenHeight + (assistPadding / 2), height: halfScreenHeight, width: assist.width};
+            quatersToShowNext[0] = {dx: assist.x + (immersiveMode ? minDx : 0), dy: minDy + halfScreenHeight + (assistPadding / 2), height: halfScreenHeight, width: assist.width};
         } else if (WindowManager.isEqual(assist.height + assistPadding, halfScreenHeight)) {
             if (WindowManager.isEqual(assist.y - (assistPadding / 2), minDy)) {
                 /// already shown in top quater, move to the bottom quater
                 assist.y = minDy + halfScreenHeight;
-                quatersToShowNext[0] = {dx: assist.x, dy: minDy + (assistPadding / 2), height: assist.height, width: assist.width};
+                quatersToShowNext[0] = {dx: assist.x + (immersiveMode ? minDx : 0), dy: minDy + (assistPadding / 2), height: assist.height, width: assist.width};
             } else {
                 /// return to initial position
                 assist.height *= 2;
