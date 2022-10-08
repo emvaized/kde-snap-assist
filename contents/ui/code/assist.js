@@ -299,7 +299,7 @@ function animateWindowPreviewsOnInit(){
             thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
             /// don't animate preview if it's card scrolled out of view
-            if (thumbnailGlobalCoords.y > scrollView.height) {
+            if (thumbnailGlobalCoords.y > mainWindow.height * 0.95) {
                 item.visible = false;
                 continue;
             }
