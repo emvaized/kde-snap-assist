@@ -169,18 +169,17 @@ function switchAssistLayout() {
             /// reduce to quater
             assist.width /= 2;
             columnsCount = 2;
-            if (assist.x !== minDx + (assistPadding / 2)) assist.x = minDx + (assistPadding / 2);
-            quatersToShowNext[0] = {dx: minDy + halfScreenWidth, dy: assist.y, height: assist.height, width: assist.width};
+            quatersToShowNext[0] = {dx: minDx + halfScreenWidth, dy: assist.y, height: assist.height, width: halfScreenWidth};
         } else if (WindowManager.isEqual(assist.width + assistPadding, halfScreenWidth)) {
-            if (WindowManager.isEqual(assist.x - (assistPadding / 2), minDx)) {
+            if (WindowManager.isEqual(assist.x - (assistPadding / 2), immersiveMode ? 0 : minDx)) {
                 /// already shown in left quater, move to the right quater
-                assist.x = minDx + halfScreenWidth ;
-                quatersToShowNext[0] = {dx: minDy + (assistPadding / 2), dy: assist.y + (assistPadding / 2), height: assist.height - assistPadding, width: assist.width - assistPadding};
+                assist.x = (immersiveMode ? 0 : minDx) + halfScreenWidth;
+                quatersToShowNext[0] = {dx: minDx + (assistPadding / 2), dy: assist.y + (assistPadding / 2), height: assist.height - assistPadding, width: assist.width - assistPadding};
             } else {
                 /// return to initial position
                 assist.width *= 2;
                 columnsCount = 3;
-                if (assist.x !== minDx + (assistPadding / 2)) assist.x = minDx + (assistPadding / 2);
+                assist.x = (immersiveMode ? 0 : minDx) + (assistPadding / 2);
                 delete quatersToShowNext[0];
             }
         }
@@ -197,7 +196,7 @@ function switchAssistLayout() {
             columnsCount = 2;
             if (WindowManager.isEqual(lastActiveClient.x - (assistPadding / 2), minDx)) {
                 /// show on the right
-                assist.x =  minDx + halfScreenWidth + (assistPadding / 2);
+                assist.x = (immersiveMode ? 0 : minDx) + halfScreenWidth + (assistPadding / 2);
                 filteredQuaters = [1, 3];
 
                 /// special handling to show assist again for newly appeared free quater
@@ -205,14 +204,14 @@ function switchAssistLayout() {
                     quatersToShowNext[0] = {dx: minDx + (assistPadding / 2), dy: minDy + (assistPadding / 2), height: halfScreenHeight - assistPadding, width: halfScreenWidth - assistPadding};
             } else {
                 /// show on the left
-                assist.x =  minDx + (assistPadding / 2);
+                assist.x = (immersiveMode ? 0 : minDx) + (assistPadding / 2);
                 filteredQuaters = [0, 2];
             }
         } else if (WindowManager.isEqual(assist.height + assistPadding, currentScreenHeight)) {
             /// make vertical halve
             assist.height  = halfScreenHeight - assistPadding;
             assist.width = currentScreenWidth - assistPadding;
-            if (assist.x !== minDx + (assistPadding / 2)) assist.x = minDx + (assistPadding / 2);
+            assist.x = (immersiveMode ? 0 : minDx) + (assistPadding / 2);
             columnsCount = 3;
             if (WindowManager.isEqual(lastActiveClient.y - (assistPadding / 2), minDy)) {
                 /// show in bottom
