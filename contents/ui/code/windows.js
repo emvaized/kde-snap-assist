@@ -431,6 +431,7 @@ function isEqual(a, b) {
 
 function getClientFromId(windowId){
     //return workspace.getClient(windowId); /// doesn't work on Wayland
+    if (!allClients) allClients = workspace.clients;
     return allClients.find((el) => el.internalId == windowId);
 }
 
