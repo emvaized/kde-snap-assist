@@ -425,13 +425,12 @@ function windowFitsInSnapGroup(client){
 /// utility functions
 function isEqual(a, b) {
     /// for compatibility with scripts like Window Gap
-//     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
     return a - b <= snapDetectPrecision && a - b >= -snapDetectPrecision;
 }
 
 function getClientFromId(windowId){
     //return workspace.getClient(windowId); /// doesn't work on Wayland
-    if (!allClients) allClients = workspace.clients;
+    if (!allClients) allClients = Object.values(workspace.clients);
     return allClients.find((el) => el.internalId == windowId);
 }
 
