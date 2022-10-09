@@ -323,7 +323,18 @@ function removeWindowFromTrack(windowId, callback){
     if (i > -1) {
         snappedWindowGroups[i].windows.splice(i2, 1);
         if (callback) callback(snappedWindowGroups[i]);
-        if (snappedWindowGroups[i].windows.length < 1) snappedWindowGroups.splice(i, 1);
+        const remainingWindowsCount = snappedWindowGroups[i].windows.length;
+        if (remainingWindowsCount < 1) snappedWindowGroups.splice(i, 1); /// delete empty group
+        else if (remainingWindowsCount === 1) {
+            /// set timer to delete group if not populated in few seconds
+
+            const remainingWindowId = snappedWindowGroups[i].windows[0];
+            setOneTimeTimeout(function(){
+                /// group index may have changed
+                const i3 = snappedWindowGroups.findIndex((group) => group.windows.indexOf(remainingWindowId) > -1 && group.windows.length < 2);
+                if (i3 > -1) snappedWindowGroups.splice(i3, 1);
+            }, 6000);
+        }
     }
 }
 
@@ -452,4 +463,20 @@ function sortClientsByLastActive() {
         if (!activationTime[windowIdA] && activationTime[windowIdB]) return -1;
         return activationTime[windowIdA] - activationTime[windowIdB];
     });
+}
+
+/// One-time timer, when we want multiple timers run in parallel
+function setOneTimeTimeout(cb, delayTime){
+    function Timer() {
+        return Qt.createQmlObject("import QtQuick 2.0; Timer {}", main);
+    }
+
+    const timer = new Timer();
+    timer.interval = delayTime;
+    timer.repeat = false;
+    timer.triggered.connect(function(){
+        cb();
+        timer.destroy();
+    });
+    timer.start();
 }

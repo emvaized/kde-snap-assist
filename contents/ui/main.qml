@@ -365,9 +365,8 @@ Window {
         }
     }
 
-    /// Timer to delay snap assist reveal.
-    /// Delay is added to get the updated snapped window's size and location,
-    /// which sometimes differs from the half of the screen
+    /// Reusable timer,
+    /// used for regular actions on each assist reveal and hide
     Timer {
         id: timer
         function setTimeout(cb, delayTime) {
