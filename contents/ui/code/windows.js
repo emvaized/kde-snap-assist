@@ -400,6 +400,7 @@ function windowFitsInSnapGroup(client){
 
     /// check rest of windows in that group
     const snappedWindows = snappedWindowGroups[indexOfGroup].windows;
+    let intercectsWithAnyOtherWindow = false;
 
     for (let i = 0, l = snappedWindows.length; i < l; i++) {
         const w = getClientFromId(snappedWindows[i]);
@@ -427,6 +428,20 @@ function windowFitsInSnapGroup(client){
             snappedWindowGroups[indexOfGroup].windows.push(client.internalId);
             return true;
         }
+
+        /// check if windows intercept
+        if (intercectsWithAnyOtherWindow == false) {
+            if (windowRectanglesIntersect(w.x, w.y, w.x + w.width, w.y + w.height, client.x, client.y, client.x + client.width, client.y + client.height)) {
+                intercectsWithAnyOtherWindow = true;
+            }
+        }
+    }
+
+    /// if window does not intercect with other windows in the group, let it in
+    if (intercectsWithAnyOtherWindow == false) {
+        snappedWindowGroups[indexOfGroup].windows.push(client.internalId);
+        AssistManager.preventAssistFromShowing();
+        return true;
     }
 
     return false;
@@ -479,4 +494,15 @@ function setOneTimeTimeout(cb, delayTime){
         timer.destroy();
     });
     timer.start();
+}
+
+function windowRectanglesIntersect(
+    minAx, minAy, maxAx, maxAy,
+    minBx, minBy, maxBx, maxBy) {
+    const aLeftOfB = maxAx < minBx;
+    const aRightOfB = minAx > maxBx;
+    const aAboveB = minAy > maxBy;
+    const aBelowB = maxAy < minBy;
+
+    return maxAx > minBx && minAx < maxBx && minAy < maxBy && maxAy > minBy;
 }
