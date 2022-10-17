@@ -31,6 +31,8 @@ In order to install this script manually from GitHub, you'd need to:
 - Use the "Install from file" button in System settings > Windows manager > KWin scripts
 - Re-login to Plasma again (or restart KWin) to make sure the script is installed
 
+You can also help testing the experimental [2.0-dev](https://github.com/emvaized/kde-snap-assist/releases/tag/v.2.0-dev) version, if you're into this kind of stuff!
+
 ---
 ### Troubleshooting
 - To apply the new settings, you may need to re-enable the script or restart KWin. The same is recommended if you switch from one version of the script to another
