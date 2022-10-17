@@ -1,3 +1,11 @@
+2.0-dev
+- (!) New experimental "Fullscreen background" mode, which provides smooth transitions and more Windows-like behavior
+- Don't process window resize of non-active windows, and windows with 'skipSwitcher' flag
+- Auto-delete snap group with 1 window if not populated in 6 seconds
+- "Fill on close" feature now supports 3-in-row layout better
+- "Try to fit window in group behind" now tries to fit window if it doesn't intersect with other windows
+- Small performance improvements
+
 1.6.2
 - New feature "Show desktop background" and associated blur option
 - Improved stability and performance by not attaching listeners to special windows (alerts, notifications, etc)
