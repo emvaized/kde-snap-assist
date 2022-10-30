@@ -369,7 +369,7 @@
               <cursorShape>WhatsThisCursor</cursorShape>
              </property>
              <property name="toolTip">
-              <string>Allows for more Windows-like experience, and also more beautiful animations</string>
+              <string>Allows for more Windows-like experience and more beautiful animations. Better works with &quot;Sort by last active&quot; enabled</string>
              </property>
              <property name="text">
               <string>Fullscreen background (+ smoother animations)</string>
@@ -562,6 +562,46 @@
              </item>
              <item>
               <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="KDoubleNumInput" name="kcfg_opacityForMinimized">
+               <property name="value">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.050000000000000</double>
+               </property>
+               <property name="sliderEnabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Opacity when window is minimized</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_10">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -813,6 +853,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KDoubleNumInput</class>
+   <extends>QWidget</extends>
+   <header>knuminput.h</header>
+  </customwidget>
   <customwidget>
    <class>KIntNumInput</class>
    <extends>QWidget</extends>

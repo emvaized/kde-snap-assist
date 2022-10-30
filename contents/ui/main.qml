@@ -94,6 +94,7 @@ Window {
     property bool showDesktopBackground
     property int desktopBackgroundBlur
     property bool immersiveMode
+    property double opacityForMinimized
 
     Connections {
         target: workspace
@@ -219,6 +220,7 @@ Window {
                             border.color: activePalette.highlight
                             border.width: focusedIndex == index ? 3 : 0
                             visible: true
+                            opacity: modelData.minimized ? opacityForMinimized : 1.0
 
                             Column {
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -444,6 +446,7 @@ Window {
         showDesktopBackground = KWin.readConfig("showDesktopBackground", false);
         desktopBackgroundBlur = KWin.readConfig("desktopBackgroundBlur", 18);
         immersiveMode = KWin.readConfig("immersiveMode", false);
+        opacityForMinimized = KWin.readConfig("opacityForMinimized", 0.99);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
         trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
         if (!showDesktopBackground) immersiveMode = false;

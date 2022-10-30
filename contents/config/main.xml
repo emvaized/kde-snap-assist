@@ -97,5 +97,9 @@
 			<label>Immersive</label>
 			<default>false</default>
 		</entry>
+		<entry name="opacityForMinimized" type="double">
+			<label>Opacity for minimized windows</label>
+			<default>1.0</default>
+		</entry>
     </group>
 </kcfg>
