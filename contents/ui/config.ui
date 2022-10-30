@@ -372,7 +372,7 @@
               <string>Allows for more Windows-like experience and more beautiful animations. Better works with &quot;Sort by last active&quot; enabled</string>
              </property>
              <property name="text">
-              <string>Fullscreen background (+ smoother animations)</string>
+              <string>Fullscreen background (+ smooth animations)</string>
              </property>
             </widget>
            </item>
@@ -426,7 +426,7 @@
              <item>
               <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>Card color</string>
+                <string>Background color</string>
                </property>
               </widget>
              </item>
@@ -471,7 +471,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Hovered card color</string>
+                <string>Color on mouse hover</string>
                </property>
               </widget>
              </item>
@@ -516,7 +516,7 @@
              <item>
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>Card title color</string>
+                <string>Title text color</string>
                </property>
               </widget>
              </item>
@@ -548,6 +548,9 @@
                <property name="maximum">
                 <number>30</number>
                </property>
+               <property name="suffix">
+                <string>px</string>
+               </property>
                <property name="sliderEnabled">
                 <bool>false</bool>
                </property>
@@ -556,7 +559,7 @@
              <item>
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>Card border radius (px)</string>
+                <string>Border radius</string>
                </property>
               </widget>
              </item>
@@ -596,7 +599,7 @@
              <item>
               <widget class="QLabel" name="label_9">
                <property name="text">
-                <string>Opacity when window is minimized</string>
+                <string>Opacity if window is minimized</string>
                </property>
               </widget>
              </item>
