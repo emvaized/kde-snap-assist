@@ -11,6 +11,7 @@ function animateWindowPreviewToSelect(index, client){
     const thumbnail = clientsRepeater.itemAt(index);
 
     if (!item || !thumbnail) return;
+    if (client.minimized) thumbnail.opacity = 1.0;
     const thumbnailGlobalCoords = thumbnail.mapToGlobal(0,0);
 
     /// set preview to fit corresponding thumbnail
