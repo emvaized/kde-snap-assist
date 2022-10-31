@@ -441,7 +441,7 @@ Window {
         hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
         backdropColor = KWin.readConfig("backdropColor", "#902a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
-        transitionDuration = KWin.readConfig("transitionDuration", 150);
+        transitionDuration = KWin.readConfig("transitionDuration", 250);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
         delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 100);
         rememberWindowSizes = KWin.readConfig("rememberWindowSizes", true);
