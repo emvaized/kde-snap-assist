@@ -189,6 +189,14 @@ Window {
             duration: transitionDuration
         }
 
+        /// fade-out animation on cancel (played only in 'fullscreen background' mode)
+        NumberAnimation on opacity {
+            id: fadeOutAnimation
+            from: 1
+            to: 0
+            duration: transitionDuration
+        }
+
         /// transition on moving assist around
         Behavior on x { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo } }
         Behavior on y { PropertyAnimation {duration: transitionDurationOnAssistMove; easing.type: Easing.OutExpo} }

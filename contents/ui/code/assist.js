@@ -318,6 +318,8 @@ function animateWindowPreviewsOnInit(){
 
 
 function animateWindowPreviewsOnCancel(callback){
+    fadeOutAnimation.restart();
+
     /// show previews of all windows
     visibleWindowPreviews = [...descendingOrder ? clients.reverse() : clients, ...visibleWindowPreviews];
 
