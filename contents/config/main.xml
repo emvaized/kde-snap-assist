@@ -75,7 +75,7 @@
 		</entry>
 		<entry name="transitionDuration" type="int">
 			<label>Transition duration on assist reveal</label>
-		  <default>150</default>
+		  <default>300</default>
 		</entry>
 		<entry name="snapDetectPrecision" type="int">
 			<label>How much px a window size can differ to still count as snapped</label>
@@ -87,7 +87,7 @@
 		</entry>
 		<entry name="showDesktopBackground" type="bool">
 			<label>Show desktop background</label>
-			<default>false</default>
+			<default>true</default>
 		</entry>
 		<entry name="desktopBackgroundBlur" type="int">
 			<label>Amount of blur to apply to desktop background</label>
@@ -95,7 +95,7 @@
 		</entry>
 		<entry name="immersiveMode" type="bool">
 			<label>Immersive</label>
-			<default>false</default>
+			<default>true</default>
 		</entry>
 		<entry name="opacityForMinimized" type="double">
 			<label>Opacity for minimized windows</label>

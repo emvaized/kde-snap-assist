@@ -459,7 +459,7 @@ Window {
         hoveredCardColor = KWin.readConfig("hoveredCardColor", "#75d9dde1");
         backdropColor = KWin.readConfig("backdropColor", "#902a2e32");
         borderRadius = KWin.readConfig("borderRadius", 5);
-        transitionDuration = KWin.readConfig("transitionDuration", 250);
+        transitionDuration = KWin.readConfig("transitionDuration", 300);
         snapDetectPrecision = KWin.readConfig("snapDetectPrecision", 0);
         delayBeforeShowingAssist = KWin.readConfig("delayBeforeShowingAssist", 100);
         rememberWindowSizes = KWin.readConfig("rememberWindowSizes", true);
@@ -469,9 +469,9 @@ Window {
         fillOnSnappedClose = KWin.readConfig("fillOnSnappedClose", false);
         fillOnSnappedMove = KWin.readConfig("fillOnSnappedMove", false);
         fitWindowInGroupBehind = KWin.readConfig("fitWindowInGroupBehind", false);
-        showDesktopBackground = KWin.readConfig("showDesktopBackground", false);
+        showDesktopBackground = KWin.readConfig("showDesktopBackground", true);
         desktopBackgroundBlur = KWin.readConfig("desktopBackgroundBlur", 18);
-        immersiveMode = KWin.readConfig("immersiveMode", false);
+        immersiveMode = KWin.readConfig("immersiveMode", true);
         opacityForMinimized = KWin.readConfig("opacityForMinimized", 0.99);
         trackSnappedWindows = minimizeSnappedTogether || raiseSnappedTogether || fillOnSnappedClose || !showSnappedWindows;
         trackActiveWindows = sortByLastActive || fitWindowInGroupBehind;
