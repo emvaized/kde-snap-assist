@@ -17,7 +17,10 @@ function delayedShowAssist(dx, dy, height, width, window){
     }, 3);
 
     if (sortByLastActive) WindowManager.sortClientsByLastActive();
-    if (immersiveMode && filteredClients.length <= 1) visibleWindowPreviews = clients;
+    if (immersiveMode && filteredClients.length <= 1) {
+        visibleWindowPreviews = clients;
+        notificationPreviews = allClients.filter(c => c.notification);
+    }
     if (descendingOrder) clients = clients.reverse();
 
     /// find current desktop background

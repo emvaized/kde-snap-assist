@@ -48,7 +48,8 @@ Window {
     property bool preventFromShowing: false /// flag used to temporarly prevent assist from showing when not desired
 
     property int transitionDurationOnAssistMove: 0 /// separate transition duration when moving assist window with the Tab key
-    property var visibleWindowPreviews: ([]) /// stores windows which should be displayed on top of canvas (snapped)
+    property var visibleWindowPreviews: ([]) /// stores windows which should be constantly displayed (snapped windows)
+    property var notificationPreviews: ([]) /// stores notification windows which should be displayed above
     property bool showRegularGridPreviews: true /// used for seamless switch between animated and static window previews
 
     /// for tracking snapped windows
@@ -372,6 +373,23 @@ Window {
                 wId: currentWindowId
                 anchors.fill: parent
             }
+        }
+    }
+
+    /// Show notification windows on top
+    Repeater {
+        id: notificationsRepeater
+        enabled: immersiveMode
+        model: notificationPreviews
+
+        KWinComponents.ThumbnailItem {
+            wId: modelData.internalId
+            clip: true
+            visible: true
+            width: modelData.width
+            height: modelData.height
+            x: modelData.x - minDx
+            y: modelData.y - minDy
         }
     }
 
